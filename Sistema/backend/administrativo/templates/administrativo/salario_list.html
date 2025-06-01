@@ -1,0 +1,81 @@
+{# Sistema/backend/administrativo/templates/administrativo/salario_list.html #}
+{% extends 'base.html' %}
+{% block title %}Salários{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Salários</h2>
+      <a href="{% url 'administrativo:salario-create' %}" class="btn btn-success">+ Novo Salário</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Colaborador</th>
+          <th>Mês/Referencia</th>
+          <th>Salário Bruto</th>
+          <th>INSS</th>
+          <th>IRRF</th>
+          <th>Salário Líquido</th>
+          <th>Holerite</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in salarios %}
+        <tr>
+          <td>{{ s.colaborador.nome }}</td>
+          <td>{{ s.mes_referencia|date:"m/Y" }}</td>
+          <td>{{ s.salario_bruto|floatformat:2 }}</td>
+          <td>{{ s.inss|floatformat:2 }}</td>
+          <td>{{ s.irrf|floatformat:2 }}</td>
+          <td>{{ s.salario_liquido|floatformat:2 }}</td>
+          <td>
+            {% if s.arquivo_holerite %}
+              <a href="{{ s.arquivo_holerite.url }}" class="btn btn-sm btn-success" target="_blank">Ver PDF</a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'administrativo:salario-edit' s.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'administrativo:salario-delete' s.pk %}" class="btn btn-sm btn-danger">🗑</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center">Nenhum salário registrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

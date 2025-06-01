@@ -1,0 +1,21 @@
+{# Sistema/backend/administrativo/templates/administrativo/lancamento_confirm_delete.html #}
+{% extends 'base.html' %}
+
+{% block title %}Excluir Lançamento{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">Excluir Lançamento</h2>
+    <p>Tem certeza que deseja excluir o lançamento contábil de <strong>{{ object.data_lancamento|date:"d/m/Y" }}</strong> 
+       no valor de <strong>{{ object.valor|floatformat:2 }}</strong>?
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+      <a href="{% url 'administrativo:lancamento-list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

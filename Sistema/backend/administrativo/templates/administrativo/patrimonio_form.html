@@ -1,0 +1,26 @@
+{# Sistema/backend/administrativo/templates/administrativo/patrimonio_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Patrimônio{% else %}Novo Patrimônio{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">{% if form.instance.pk %}Editar Patrimônio{% else %}Novo Patrimônio{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Patrimônio{% endif %}
+        </button>
+        <a href="{% url 'administrativo:patrimonio-list' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

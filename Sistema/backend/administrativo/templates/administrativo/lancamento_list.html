@@ -1,0 +1,71 @@
+{# Sistema/backend/administrativo/templates/administrativo/lancamento_list.html #}
+{% extends 'base.html' %}
+{% block title %}Lançamentos Contábeis{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Lançamentos Contábeis</h2>
+      <a href="{% url 'administrativo:lancamento-create' %}" class="btn btn-success">+ Novo Lançamento</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Conta Débito</th>
+          <th>Conta Crédito</th>
+          <th>Valor</th>
+          <th>Descrição</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in lancamentos %}
+        <tr>
+          <td>{{ l.data_lancamento|date:"d/m/Y" }}</td>
+          <td>{{ l.conta_debito }}</td>
+          <td>{{ l.conta_credito }}</td>
+          <td>{{ l.valor|floatformat:2 }}</td>
+          <td>{{ l.descricao|truncatechars:30 }}</td>
+          <td>
+            <a href="{% url 'administrativo:lancamento-edit' l.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'administrativo:lancamento-delete' l.pk %}" class="btn btn-sm btn-danger">🗑</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center">Nenhum lançamento encontrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

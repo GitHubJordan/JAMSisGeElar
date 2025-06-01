@@ -1,0 +1,75 @@
+{# Sistema/backend/administrativo/templates/administrativo/patrimonio_list.html #}
+{% extends 'base.html' %}
+{% block title %}Patrimônios{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Patrimônios</h2>
+      <a href="{% url 'administrativo:patrimonio-create' %}" class="btn btn-success">+ Novo Patrimônio</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th>Valor Aquisição</th>
+          <th>Data Aquisição</th>
+          <th>Vida Útil (anos)</th>
+          <th>Depreciação Acumulada</th>
+          <th>Valor Contábil Líquido</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in patrimonios %}
+        <tr>
+          <td>{{ p.descricao }}</td>
+          <td>{{ p.get_categoria_display }}</td>
+          <td>{{ p.valor_aquisicao|floatformat:2 }}</td>
+          <td>{{ p.data_aquisicao|date:"d/m/Y" }}</td>
+          <td>{{ p.vida_util_anos }}</td>
+          <td>{{ p.depreciacao_acumulada|floatformat:2 }}</td>
+          <td>{{ p.valor_contabil_liquido|floatformat:2 }}</td>
+          <td>
+            <a href="{% url 'administrativo:patrimonio-edit' p.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'administrativo:patrimonio-delete' p.pk %}" class="btn btn-sm btn-danger">🗑</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center">Nenhum patrimônio cadastrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

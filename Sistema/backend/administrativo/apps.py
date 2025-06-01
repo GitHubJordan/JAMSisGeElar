@@ -4,3 +4,7 @@ from django.apps import AppConfig
 class AdministrativoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'administrativo'
+
+    def ready(self):
+        import administrativo.signals
+        

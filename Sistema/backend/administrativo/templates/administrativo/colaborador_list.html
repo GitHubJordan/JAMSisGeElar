@@ -1,0 +1,71 @@
+{# Sistema/backend/administrativo/templates/administrativo/colaborador_list.html #}
+{% extends 'base.html' %}
+{% block title %}Colaboradores{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Colaboradores</h2>
+      <a href="{% url 'administrativo:colaborador-create' %}" class="btn btn-success">+ Novo Colaborador</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Cargo</th>
+          <th>Departamento</th>
+          <th>Data Admissão</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in colaboradores %}
+        <tr>
+          <td>{{ c.nome }}</td>
+          <td>{{ c.cargo }}</td>
+          <td>{{ c.get_departamento_display }}</td>
+          <td>{{ c.data_admissao|date:"d/m/Y" }}</td>
+          <td>{{ c.status }}</td>
+          <td>
+            <a href="{% url 'administrativo:colaborador-edit' c.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'administrativo:colaborador-delete' c.pk %}" class="btn btn-sm btn-danger">🗑</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center">Nenhum colaborador encontrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

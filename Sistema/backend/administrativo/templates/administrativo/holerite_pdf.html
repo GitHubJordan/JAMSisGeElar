@@ -1,0 +1,76 @@
+{# Sistema/backend/administrativo/templates/administrativo/holerite_pdf.html #}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+    h1, h2 { text-align: center; }
+    .cabecalho { text-align: center; margin-bottom: 20px; }
+    .dados { margin: 20px; }
+    .dados p { margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    th { background-color: #eee; }
+  </style>
+  <title>Recibo de Pagamento - {{ colaborador.nome }}</title>
+</head>
+<body>
+  <div class="cabecalho">
+    <h1>{{ instituicao }}</h1>
+    <h2>Recibo de Pagamento - {{ colaborador.nome }}</h2>
+    <p>Mês de Referência: {{ salario.mes_referencia|date:"m/Y" }}</p>
+    <p>Gerado em: {{ data_processamento|date:"d/m/Y H:i" }}</p>
+  </div>
+
+  <div class="dados">
+    <p><strong>Nome:</strong> {{ colaborador.nome }}</p>
+    <p><strong>Documento:</strong> {{ colaborador.documento }}</p>
+    <p><strong>Cargo:</strong> {{ colaborador.cargo }}</p>
+    <p><strong>Departamento:</strong> {{ colaborador.get_departamento_display }}</p>
+    <hr>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Valor (AKZ)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Salário Base</td>
+          <td>{{ colaborador.salario_base|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td>Horas Extras</td>
+          <td>{{ salario.horas_extras|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td>Bonificações</td>
+          <td>{{ salario.bonificacoes|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td>Descontos</td>
+          <td>{{ salario.descontos|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <th>Salário Bruto</th>
+          <th>{{ salario.salario_bruto|floatformat:2 }}</th>
+        </tr>
+        <tr>
+          <td>INSS (8%)</td>
+          <td>{{ salario.inss|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td>IRT (15%)</td>
+          <td>{{ salario.irrf|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <th>Salário Líquido</th>
+          <th>{{ salario.salario_liquido|floatformat:2 }}</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
