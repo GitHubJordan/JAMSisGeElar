@@ -10,11 +10,11 @@
       </li>
       <li>
         <a data-bs-toggle="collapse" href="#adminSubmenu" role="button" aria-expanded="false">Administração</a>
-        <ul class="collapse list-unstyled ps-3" id="adminSubmenu">
-          <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
+        <ul class="collapse list-unstyled ps-3" id="administrativoSubmenu">
+            <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:lancamento-list' %}">Contabilidade</a></li>
         </ul>
       </li>
       <li>
@@ -42,12 +42,13 @@
       <li>
         <a data-bs-toggle="collapse" href="#administrativoSubmenuDiretor" role="button" aria-expanded="false">Área Administrativa</a>
         <ul class="collapse list-unstyled ps-3" id="administrativoSubmenuDiretor">
-          <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
-          <li class="py-1"><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
+            <li class="py-1"><a href="{% url 'administrativo:lancamento-list' %}">Contabilidade</a></li>
         </ul>
       </li>
+        
       <li class="p-2">
         <a href="{% url 'pedagogico:turma-list' %}">Área Pedagógica</a>
       </li>
@@ -55,15 +56,15 @@
         <a href="{% url 'secretaria:aluno-list' %}">Área da Secretaria</a>
       </li>
 
-    {% elif request.user.role.name == 'Subdiretor Pedagógico' %}
+    {% elif request.user.role.name == 'Pedagogico' %}
       <li class="p-2">
         <a href="{% url 'dashboard:pedagogico-dashboard' %}">Dashboard Pedagógico</a>
       </li>
       <li class="p-2"><a href="{% url 'pedagogico:turma-list' %}">Turmas</a></li>
-      <li class="p-2"><a href="{% url 'pedagogico:mini-pauta' %}">Mini Pauta</a></li>
+      <li class="p-2"><a href="{% url 'pedagogico:nota-list' %}">Notas</a></li>
       <li class="p-2"><a href="{% url 'pedagogico:boletim-list' %}">Boletins</a></li>
 
-    {% elif request.user.role.name == 'Secretário' %}
+    {% elif request.user.role.name == 'Secretaria' %}
       <li class="p-2">
         <a href="{% url 'dashboard:secretaria-dashboard' %}">Dashboard Secretaria</a>
       </li>
