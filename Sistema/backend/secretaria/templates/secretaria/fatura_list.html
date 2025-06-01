@@ -1,0 +1,93 @@
+{# Sistema/backend/secretaria/templates/secretaria/fatura_list.html #}
+{% extends 'base.html' %}
+{% block title %}Faturas{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Faturas</h2>
+      <a href="{% url 'secretaria:fatura-create' %}" class="btn btn-success">+ Nova Fatura</a>
+    </div>
+
+    <!-- Filtro simples por Aluno ou Status (opcional) -->
+    <form method="get" class="row g-3 mb-4">
+      <div class="col-md-4">
+        <input type="text" name="aluno" value="{{ request.GET.aluno }}" class="form-control" placeholder="Buscar por Aluno">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select">
+          <option value="">Todos os Status</option>
+          <option value="PENDENTE" {% if request.GET.status == "PENDENTE" %}selected{% endif %}>PENDENTE</option>
+          <option value="VENCIDO" {% if request.GET.status == "VENCIDO" %}selected{% endif %}>VENCIDO</option>
+          <option value="PAGO" {% if request.GET.status == "PAGO" %}selected{% endif %}>PAGO</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+      </div>
+    </form>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nº</th>
+          <th>Aluno</th>
+          <th>Valor (AKZ)</th>
+          <th>Emissão</th>
+          <th>Vencimento</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in faturas %}
+        <tr>
+          <td>{{ f.numero }}</td>
+          <td>{{ f.aluno.nome }}</td>
+          <td>{{ f.valor_atual }}</td>
+          <td>{{ f.data_emissao|date:"d/m/Y" }}</td>
+          <td>{{ f.data_vencimento|date:"d/m/Y" }}</td>
+          <td>{{ f.status }}</td>
+          <td>
+            <a href="{% url 'secretaria:fatura-edit' f.pk %}" class="btn btn-sm btn-primary" {% if f.status == 'PAGO' %}disabled{% endif %}>🖉</a>
+            <a href="{% url 'secretaria:fatura-delete' f.pk %}" class="btn btn-sm btn-danger" {% if f.status != 'PENDENTE' %}disabled{% endif %}>🗑</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center">Nenhuma fatura encontrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if is_paginated %}
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

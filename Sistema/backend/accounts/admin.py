@@ -26,3 +26,17 @@ class UserAdmin(DefaultUserAdmin):
     )
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
+
+    def save_model(self, request, obj, form, change):
+        # Se for atribuir role Admin a um usuário novo ou editado:
+        if obj.role.name == 'Admin':
+            # Verifica se há outro Admin ativo, exceto ele mesmo (no caso de change)
+            qs = User.objects.filter(role__name='Admin', is_active=True)
+            if change:
+                qs = qs.exclude(pk=obj.pk)
+            if qs.exists():
+                from django.contrib import messages
+                messages.error(request, "Já existe um usuário Admin ativo. Só pode haver um Admin.")
+                return
+        super().save_model(request, obj, form, change)
+

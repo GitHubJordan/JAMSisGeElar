@@ -30,16 +30,19 @@ INSTALLED_APPS = [
 
     # Apps de terceiros
     'crispy_forms',
+    'crispy_bootstrap5',
 
     # Apps do projeto
     'accounts',
     'secretaria',
     'pedagogico',
     'administrativo',
+    'dashboard',
     'core',
 ]
 
 # Configuração do crispy-forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
@@ -54,13 +57,18 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'setup.urls'
 
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = '/accounts/redirect-dashboard/'
+
+# SISTEMA DE TEMPLATES
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, os.path.join(BASE_DIR, 'templates')],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -68,6 +76,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'setup.wsgi.application'
 

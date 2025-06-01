@@ -1,0 +1,19 @@
+{# Sistema/backend/secretaria/templates/secretaria/aluno_confirm_delete.html #}
+{% extends 'base.html' %}
+
+{% block title %}Excluir Aluno{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">Excluir Aluno</h2>
+    <p>Tem certeza que deseja excluir o aluno <strong>{{ object.nome }}</strong> ({{ object.matricula }})?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+      <a href="{% url 'secretaria:aluno-list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

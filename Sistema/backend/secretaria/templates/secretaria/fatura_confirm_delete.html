@@ -1,0 +1,19 @@
+{# Sistema/backend/secretaria/templates/secretaria/fatura_confirm_delete.html #}
+{% extends 'base.html' %}
+
+{% block title %}Excluir Fatura{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">Excluir Fatura</h2>
+    <p>Tem certeza que deseja excluir a fatura <strong>{{ object.numero }}</strong> do aluno <strong>{{ object.aluno.nome }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+      <a href="{% url 'secretaria:fatura-list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

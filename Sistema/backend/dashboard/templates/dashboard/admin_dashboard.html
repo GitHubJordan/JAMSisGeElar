@@ -1,0 +1,42 @@
+{# Sistema/backend/dashboard/templates/dashboard/admin_dashboard.html #}
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+    {% include 'includes/sidebar.html' %}
+    <div class="flex-grow-1 p-4">
+        <h1>Dashboard do Admin</h1>
+        <div class="row mt-4">
+            <!-- Card: Total de Alunos -->
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-primary h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Alunos Cadastrados</h5>
+                        <p class="card-text display-6">{{ alunos_total }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card: Faturas Pendentes -->
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-warning h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Faturas Pendentes</h5>
+                        <p class="card-text display-6">{{ faturas_pendentes }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card: Colaboradores Ativos -->
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-success h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Colaboradores Ativos</h5>
+                        <p class="card-text display-6">{{ colaboradores_ativos }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{# Sistema/backend/secretaria/templates/secretaria/aluno_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 800px;">
+    <h2 class="mb-4">{% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" id="alunoTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-dadospessoais" data-bs-toggle="tab" data-bs-target="#dadospessoais" type="button" role="tab">Dados Pessoais</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-dadosencarregado" data-bs-toggle="tab" data-bs-target="#dadosencarregado" type="button" role="tab">Dados do Encarregado</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-documentos" data-bs-toggle="tab" data-bs-target="#documentos" type="button" role="tab">Documentos</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-observacoes" data-bs-toggle="tab" data-bs-target="#observacoes" type="button" role="tab">Observações</button>
+        </li>
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content border border-top-0 p-4">
+        <!-- Aba: Dados Pessoais -->
+        <div class="tab-pane fade show active" id="dadospessoais" role="tabpanel">
+          <div class="mb-3">
+            {{ form.nome|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.data_nascimento|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.genero|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.endereco|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.documento|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.foto|as_crispy_field }}
+          </div>
+        </div>
+
+        <!-- Aba: Dados do Encarregado -->
+        <div class="tab-pane fade" id="dadosencarregado" role="tabpanel">
+          <div class="mb-3">
+            {{ form.encarregado|as_crispy_field }}
+          </div>
+          <div>
+            <a href="{% url 'secretaria:encarregado-create' %}" class="btn btn-sm btn-outline-secondary mb-2">+ Novo Encarregado</a>
+          </div>
+        </div>
+
+        <!-- Aba: Documentos -->
+        <div class="tab-pane fade" id="documentos" role="tabpanel">
+          <div class="mb-3">
+            {{ form.comprovante_residencia|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.historico_escolar|as_crispy_field }}
+          </div>
+          <div class="mb-3">
+            {{ form.outros_documentos|as_crispy_field }}
+          </div>
+        </div>
+
+        <!-- Aba: Observações -->
+        <div class="tab-pane fade" id="observacoes" role="tabpanel">
+          <div class="mb-3">
+            {{ form.observacoes|as_crispy_field }}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Aluno{% endif %}
+        </button>
+        <a href="{% url 'secretaria:aluno-list' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

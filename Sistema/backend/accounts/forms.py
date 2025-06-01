@@ -23,6 +23,20 @@ class UserCreateForm(UserCreationForm):
         required=False
     )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        if role and role.name == 'Admin':
+            # Verifica se já existe um usuário ativo com role 'Admin'
+            from .models import User
+            existing_admin = User.objects.filter(role__name='Admin', is_active=True).exists()
+            # Se existe e não estamos editando um Admin (pois em criação, não temos self.instance.pk)
+            if existing_admin:
+                raise forms.ValidationError(
+                    "Já existe um usuário Admin ativo. Não é permitido ter mais de um Admin."
+                )
+        return cleaned_data
+
     class Meta:
         model = User
         fields = [
@@ -61,6 +75,18 @@ class UserEditForm(DjangoUserChangeForm):
         label='Foto de Perfil',
         required=False
     )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        if role and role.name == 'Admin':
+            from .models import User
+            # Se estivermos editando, self.instance é o usuário sendo editado
+            # Verifica se existe outro Admin ativo diferente dele
+            qs = User.objects.filter(role__name='Admin', is_active=True).exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError("Já existe outro usuário Admin ativo. Só um Admin é permitido.")
+        return cleaned_data
 
     class Meta:
         model = User

@@ -1,0 +1,33 @@
+{# Sistema/backend/dashboard/templates/dashboard/pedagogico_dashboard.html #}
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Pedagógico{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+    {% include 'includes/sidebar.html' %}
+    <div class="flex-grow-1 p-4">
+        <h1>Dashboard Pedagógico</h1>
+        <div class="row mt-4">
+            <!-- Card: Total de Turmas -->
+            <div class="col-md-6 mb-3">
+                <div class="card text-white bg-secondary h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Turmas Cadastradas</h5>
+                        <p class="card-text display-6">{{ turmas_total }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card: Notas Pendentes -->
+            <div class="col-md-6 mb-3">
+                <div class="card text-white bg-dark h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Notas Pendentes</h5>
+                        <p class="card-text display-6">{{ notas_pendentes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

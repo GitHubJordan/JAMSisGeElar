@@ -1,0 +1,33 @@
+{# Sistema/backend/dashboard/templates/dashboard/diretor_dashboard.html #}
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Diretor{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+    {% include 'includes/sidebar.html' %}
+    <div class="flex-grow-1 p-4">
+        <h1>Dashboard do Diretor</h1>
+        <div class="row mt-4">
+            <!-- Card: Colaboradores Ativos -->
+            <div class="col-md-6 mb-3">
+                <div class="card text-white bg-info h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Colaboradores Ativos</h5>
+                        <p class="card-text display-6">{{ colaboradores_ativos }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card: Faturas Pendentes de Salário -->
+            <div class="col-md-6 mb-3">
+                <div class="card text-white bg-danger h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Salários Pendentes</h5>
+                        <p class="card-text display-6">{{ salarios_pendentes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
