@@ -13,7 +13,7 @@ from .forms import EncarregadoForm, AlunoForm, FaturaForm
 from accounts.decorators import role_required
 
 @login_required
-@role_required('Admin', 'Diretor', 'Secretário')
+@role_required('Admin', 'Diretor', 'Secretaria')
 def usuario_redirect_secretaria(request):
     """
     Redireciona automaticamente para o dashboard de secretaria.
@@ -24,7 +24,7 @@ def usuario_redirect_secretaria(request):
 # CRUD de Encarregado (RF-09 a RF-12)
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class EncarregadoListView(LoginRequiredMixin, ListView):
     model = Encarregado
     template_name = 'secretaria/encarregado_list.html'
@@ -33,7 +33,7 @@ class EncarregadoListView(LoginRequiredMixin, ListView):
     ordering = ['nome']
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class EncarregadoCreateView(LoginRequiredMixin, CreateView):
     model = Encarregado
     form_class = EncarregadoForm
@@ -41,7 +41,7 @@ class EncarregadoCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('secretaria:encarregado-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class EncarregadoUpdateView(LoginRequiredMixin, UpdateView):
     model = Encarregado
     form_class = EncarregadoForm
@@ -49,7 +49,7 @@ class EncarregadoUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('secretaria:encarregado-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class EncarregadoDeleteView(LoginRequiredMixin, DeleteView):
     model = Encarregado
     template_name = 'secretaria/encarregado_confirm_delete.html'
@@ -60,7 +60,7 @@ class EncarregadoDeleteView(LoginRequiredMixin, DeleteView):
 # CRUD de Aluno (RF-13 a RF-16)
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class AlunoListView(LoginRequiredMixin, ListView):
     model = Aluno
     template_name = 'secretaria/aluno_list.html'
@@ -69,7 +69,7 @@ class AlunoListView(LoginRequiredMixin, ListView):
     ordering = ['matricula']
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class AlunoCreateView(LoginRequiredMixin, CreateView):
     model = Aluno
     form_class = AlunoForm
@@ -91,7 +91,7 @@ class AlunoCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class AlunoUpdateView(LoginRequiredMixin, UpdateView):
     model = Aluno
     form_class = AlunoForm
@@ -99,7 +99,7 @@ class AlunoUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('secretaria:aluno-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class AlunoDeleteView(LoginRequiredMixin, DeleteView):
     model = Aluno
     template_name = 'secretaria/aluno_confirm_delete.html'
@@ -110,7 +110,7 @@ class AlunoDeleteView(LoginRequiredMixin, DeleteView):
 # CRUD de Fatura (RF-17 a RF-21)
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class FaturaListView(LoginRequiredMixin, ListView):
     model = Fatura
     template_name = 'secretaria/fatura_list.html'
@@ -130,7 +130,7 @@ class FaturaListView(LoginRequiredMixin, ListView):
         return qs
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class FaturaCreateView(LoginRequiredMixin, CreateView):
     model = Fatura
     form_class = FaturaForm
@@ -154,7 +154,7 @@ class FaturaCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class FaturaUpdateView(LoginRequiredMixin, UpdateView):
     model = Fatura
     form_class = FaturaForm
@@ -175,7 +175,7 @@ class FaturaUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class FaturaDeleteView(LoginRequiredMixin, DeleteView):
     model = Fatura
     template_name = 'secretaria/fatura_confirm_delete.html'
@@ -193,7 +193,7 @@ class FaturaDeleteView(LoginRequiredMixin, DeleteView):
 # Listagem de Conta Corrente (somente leitura)
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Secretário'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Secretaria'), name='dispatch')
 class ContaCorrenteListView(LoginRequiredMixin, ListView):
     model = ContaCorrente
     template_name = 'secretaria/contacorrente_list.html'

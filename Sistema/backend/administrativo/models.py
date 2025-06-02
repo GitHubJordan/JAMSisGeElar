@@ -1,5 +1,7 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import RegexValidator
 
 User = get_user_model()
 
@@ -12,6 +14,10 @@ class Colaborador(models.Model):
         ('TESOURARIA', 'Tesouraria'),
         ('PATRIMONIO', 'Patrimônio'),
         ('CONTABILIDADE', 'Contabilidade'),
+        ('SUBDIRECAO PEDAGOGICA', 'Subdireção Pedagógica'),
+        ('SUBDIRECAO ADMINISTRATIVA', 'Subdireção Administrativa'),
+        ('DIRCAO GERAL', 'Direção Geral'),
+        ('OUTRO', 'Outro'),
     ]
     STATUS_CHOICES = [
         ('ATIVO', 'ATIVO'),
@@ -21,7 +27,7 @@ class Colaborador(models.Model):
     nome = models.CharField('Nome Completo', max_length=150)
     documento = models.CharField('Documento (BI)', max_length=50, unique=True)
     cargo = models.CharField('Cargo', max_length=100)
-    departamento = models.CharField('Departamento', max_length=20, choices=DEPARTAMENTO_CHOICES)
+    departamento = models.CharField('Departamento', max_length=32, choices=DEPARTAMENTO_CHOICES)
     data_admissao = models.DateField('Data de Admissão')
     salario_base = models.DecimalField('Salário Base', max_digits=12, decimal_places=2)
     telefone = models.CharField('Telefone', max_length=20, blank=True)
@@ -48,7 +54,16 @@ class Salario(models.Model):
         on_delete=models.CASCADE,
         related_name='salarios'
     )
-    mes_referencia = models.DateField('Mês de Referência')
+    mes_referencia = models.CharField(
+        max_length=7,  # Formato: "YYYY-MM"
+        validators=[
+            RegexValidator(
+                regex=r'^\d{4}-\d{2}$',
+                message="Formato deve ser YYYY-MM (ex: 2025-04)"
+            )
+        ]
+    )
+    data_referencia = models.DateField(null=True, blank=True)  # Novo campo
     horas_extras = models.DecimalField('Horas Extras', max_digits=5, decimal_places=2, default=0)
     descontos = models.DecimalField('Descontos', max_digits=12, decimal_places=2, default=0)
     bonificacoes = models.DecimalField('Bonificações', max_digits=12, decimal_places=2, default=0)
@@ -70,6 +85,26 @@ class Salario(models.Model):
         verbose_name='Processado por'
     )
     data_processamento = models.DateTimeField('Data de Processamento', auto_now_add=True)
+
+    def mes_formatado(self):
+        meses = {
+            "01": "Janeiro", "02": "Fevereiro", "03": "Março",
+            "04": "Abril", "05": "Maio", "06": "Junho",
+            "07": "Julho", "08": "Agosto", "09": "Setembro",
+            "10": "Outubro", "11": "Novembro", "12": "Dezembro"
+        }
+        try:
+            ano, mes = self.mes_referencia.split('-')
+            return f"{meses[mes]} de {ano}"
+        except:
+            return self.mes_referencia
+
+    def save(self, *args, **kwargs):
+        # Preenche automaticamente data_referencia
+        if self.mes_referencia:
+            # Use o datetime importado corretamente
+            self.data_referencia = datetime.strptime(self.mes_referencia + '-01', '%Y-%m-%d').date()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Salário'
@@ -127,6 +162,16 @@ class BemPatrimonio(models.Model):
     def __str__(self):
         return f'{self.descricao} ({self.categoria})'
 
+    def save(self, *args, **kwargs):
+        # Não chame self.save() aqui! Isso causaria recursão
+        # Se precisar de pré-processamento, faça antes de chamar super()
+        
+        # Exemplo correto:
+        if not self.pk:  # Se for um novo objeto
+            self.calcular_depreciacao()
+            
+        super().save(*args, **kwargs)
+
     def calcular_depreciacao(self, data_referencia=None):
         """
         Recalcula depreciacao_acumulada e valor_contabil_liquido com base na data de referência.
@@ -136,16 +181,31 @@ class BemPatrimonio(models.Model):
 
         if data_referencia is None:
             data_referencia = date.today()
+        
+        # Evitar divisão por zero
+        if self.vida_util_anos == 0:
+            self.depreciacao_acumulada = 0
+            self.valor_contabil_liquido = self.valor_aquisicao
+            return self.valor_contabil_liquido
+
         meses_total = self.vida_util_anos * 12
         meses_passados = (data_referencia.year - self.data_aquisicao.year) * 12 + (data_referencia.month - self.data_aquisicao.month)
         meses_passados = max(0, min(meses_passados, meses_total))
+        
+        # Verificação adicional para meses_total = 0
+        if meses_total == 0:
+            self.depreciacao_acumulada = 0
+            self.valor_contabil_liquido = self.valor_aquisicao
+            return self.valor_contabil_liquido
+
         depreciacao_mensal = self.valor_aquisicao / meses_total
         self.depreciacao_acumulada = depreciacao_mensal * meses_passados
         self.valor_contabil_liquido = self.valor_aquisicao - self.depreciacao_acumulada
+        
         # Garantir não ficar negativo:
         if self.valor_contabil_liquido < 0:
             self.valor_contabil_liquido = 0
-        self.save()
+        
         return self.valor_contabil_liquido
 
 

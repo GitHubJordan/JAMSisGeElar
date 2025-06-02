@@ -17,7 +17,7 @@ def redirect_dashboard(request):
         return redirect('dashboard:admin-dashboard')
     elif role_name == 'Diretor':
         return redirect('dashboard:diretor-dashboard')
-    elif role_name == 'Subdiretor Pedagógico':
+    elif role_name == 'Pedagogico':
         return redirect('dashboard:pedagogico-dashboard')
     elif role_name == 'Secretaria':
         return redirect('dashboard:secretaria-dashboard')

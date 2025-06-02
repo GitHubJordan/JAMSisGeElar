@@ -1,0 +1,21 @@
+{# Sistema/backend/core/templates/core/configuracao_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Configuração Inicial{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 800px;">
+    <h2 class="mb-4">Configuração Inicial</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

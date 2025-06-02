@@ -1,52 +1,39 @@
-{# Sistema/backend/administrativo/templates/administrativo/salario_list.html #}
+{# Sistema/backend/core/templates/core/errorlog_list.html #}
 {% extends 'base.html' %}
-{% block title %}Salários{% endblock %}
+{% block title %}Logs de Erro{% endblock %}
 
 {% block content %}
 <div class="d-flex">
   {% include 'includes/sidebar.html' %}
   <div class="flex-grow-1 p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Salários</h2>
-      <a href="{% url 'administrativo:salario-create' %}" class="btn btn-success">+ Novo Salário</a>
-    </div>
+    <h2>Logs de Erro</h2>
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Colaborador</th>
-          <th>Mês/Referencia</th>
-          <th>Salário Bruto</th>
-          <th>INSS</th>
-          <th>IRT</th>
-          <th>Salário Líquido</th>
-          <th>Recibo</th>
-          <th>Ações</th>
+          <th>Timestamp</th>
+          <th>Usuário</th>
+          <th>Path</th>
+          <th>Mensagem</th>
+          <th>Stack Trace</th>
         </tr>
       </thead>
       <tbody>
-        {% for s in salarios %}
+        {% for e in errors %}
         <tr>
-          <td>{{ s.colaborador.nome }}</td>
-          <td>{{ s.mes_referencia }}</td>
-          <td>{{ s.salario_bruto|floatformat:2 }}</td>
-          <td>{{ s.inss|floatformat:2 }}</td>
-          <td>{{ s.irt|floatformat:2 }}</td>
-          <td>{{ s.salario_liquido|floatformat:2 }}</td>
+          <td>{{ e.timestamp|date:"d/m/Y H:i:s" }}</td>
+          <td>{{ e.user.username if e.user else "Anônimo" }}</td>
+          <td>{{ e.path }}</td>
+          <td>{{ e.message|truncatechars:50 }}</td>
           <td>
-            {% if s.arquivo_holerite %}
-              <a href="{{ s.arquivo_holerite.url }}" class="btn btn-sm btn-success" target="_blank">Ver PDF</a>
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td>
-            <a href="{% url 'administrativo:salario-edit' s.pk %}" class="btn btn-sm btn-primary">🖉</a>
-            <a href="{% url 'administrativo:salario-delete' s.pk %}" class="btn btn-sm btn-danger">🗑</a>
+            <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#trace{{ e.pk }}" aria-expanded="false">Mostrar</button>
+            <div class="collapse" id="trace{{ e.pk }}">
+              <pre style="white-space: pre-wrap;">{{ e.stack_trace }}</pre>
+            </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center">Nenhum salário registrado.</td>
+          <td colspan="5" class="text-center">Nenhum erro registrado.</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -59,7 +46,6 @@
           {% else %}
           <li class="page-item disabled"><span class="page-link">Anterior</span></li>
           {% endif %}
-
           {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
               <li class="page-item active"><span class="page-link">{{ num }}</span></li>
@@ -67,7 +53,6 @@
               <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
             {% endif %}
           {% endfor %}
-
           {% if page_obj.has_next %}
           <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
           {% else %}

@@ -19,7 +19,7 @@
   <div class="cabecalho">
     <h1>{{ instituicao }}</h1>
     <h2>Recibo de Pagamento - {{ colaborador.nome }}</h2>
-    <p>Mês de Referência: {{ salario.mes_referencia|date:"m/Y" }}</p>
+    <p>Mês de Referência: {{ salario.mes_referencia }}</p>
     <p>Gerado em: {{ data_processamento|date:"d/m/Y H:i" }}</p>
   </div>
 
@@ -63,7 +63,7 @@
         </tr>
         <tr>
           <td>IRT (15%)</td>
-          <td>{{ salario.irrf|floatformat:2 }}</td>
+          <td>{{ salario.irt|floatformat:2 }}</td>
         </tr>
         <tr>
           <th>Salário Líquido</th>

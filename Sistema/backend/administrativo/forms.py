@@ -1,3 +1,4 @@
+import re
 from django import forms
 from .models import Colaborador, Salario, BemPatrimonio, LancamentoContabil
 from django.core.exceptions import ValidationError
@@ -45,7 +46,7 @@ class SalarioForm(forms.ModelForm):
         ]
         widgets = {
             'colaborador': forms.Select(),
-            'mes_referencia': forms.DateInput(attrs={'type': 'month'}),  # mostra apenas mês/ano
+            'mes_referencia': forms.DateInput(attrs={'type': 'month'}),
             'horas_extras': forms.NumberInput(attrs={'step': '0.01', 'min': 0}),
             'descontos': forms.NumberInput(attrs={'step': '0.01', 'min': 0}),
             'bonificacoes': forms.NumberInput(attrs={'step': '0.01', 'min': 0}),
@@ -63,6 +64,13 @@ class SalarioForm(forms.ModelForm):
             if qs.exists():
                 raise ValidationError("Já existe um salário processado para este colaborador neste mês.")
         return cleaned
+    
+    def clean_mes_referencia(self):
+        data = self.cleaned_data['mes_referencia']
+        if not re.match(r'^\d{4}-\d{2}$', data):
+            raise ValidationError("Formato inválido. Use YYYY-MM (ex: 2025-04)")
+        return data
+
 
 
 class BemPatrimonioForm(forms.ModelForm):
@@ -84,6 +92,12 @@ class BemPatrimonioForm(forms.ModelForm):
             'vida_util_anos': forms.NumberInput(attrs={'min': 1}),
             'localizacao': forms.TextInput(attrs={'placeholder': 'Ex.: Sala 101'}),
         }
+    
+    def clean_vida_util_anos(self):
+        data = self.cleaned_data['vida_util_anos']
+        if data < 1:
+            raise ValidationError("A vida útil deve ser de pelo menos 1 ano.")
+        return data
 
 
 class LancamentoContabilForm(forms.ModelForm):

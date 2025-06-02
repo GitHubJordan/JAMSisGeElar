@@ -9,11 +9,16 @@ class ColaboradorAdmin(admin.ModelAdmin):
 
 @admin.register(Salario)
 class SalarioAdmin(admin.ModelAdmin):
-    list_display = ('colaborador', 'mes_referencia', 'salario_liquido')
+    list_display = ('colaborador', 'get_mes_formatado', 'salario_liquido')
     list_filter = ('mes_referencia',)
     search_fields = ('colaborador__nome',)
     raw_id_fields = ('colaborador', 'processado_por')
-    date_hierarchy = 'mes_referencia'
+    date_hierarchy = 'data_referencia'  # Use o novo campo
+
+
+    def get_mes_formatado(self, obj):
+        return obj.mes_formatado()
+    get_mes_formatado.short_description = 'Mês Referência'
 
 @admin.register(BemPatrimonio)
 class BemPatrimonioAdmin(admin.ModelAdmin):

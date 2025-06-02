@@ -1,0 +1,26 @@
+{# Sistema/backend/pedagogico/templates/pedagogico/turmadisciplina_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Associação{% else %}Nova Associação{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  {% include 'includes/sidebar.html' %}
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">{% if form.instance.pk %}Editar Associação{% else %}Nova Associação{% endif %}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Associação{% endif %}
+        </button>
+        <a href="{% url 'pedagogico:turmadisciplina-list' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

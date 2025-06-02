@@ -1,52 +1,54 @@
-{# Sistema/backend/administrativo/templates/administrativo/salario_list.html #}
+{# Sistema/backend/pedagogico/templates/pedagogico/nota_list.html #}
 {% extends 'base.html' %}
-{% block title %}Salários{% endblock %}
+{% block title %}Notas{% endblock %}
 
 {% block content %}
 <div class="d-flex">
   {% include 'includes/sidebar.html' %}
   <div class="flex-grow-1 p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Salários</h2>
-      <a href="{% url 'administrativo:salario-create' %}" class="btn btn-success">+ Novo Salário</a>
+      <h2>Notas</h2>
+      <a href="{% url 'pedagogico:nota-create' %}" class="btn btn-success">+ Nova Nota</a>
     </div>
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Colaborador</th>
-          <th>Mês/Referencia</th>
-          <th>Salário Bruto</th>
-          <th>INSS</th>
-          <th>IRT</th>
-          <th>Salário Líquido</th>
-          <th>Recibo</th>
+          <th>Aluno</th>
+          <th>Turma</th>
+          <th>Disciplina</th>
+          <th>N1</th>
+          <th>N2</th>
+          <th>N3</th>
+          <th>Média Final</th>
+          <th>Situação</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        {% for s in salarios %}
+        {% for n in notas %}
         <tr>
-          <td>{{ s.colaborador.nome }}</td>
-          <td>{{ s.mes_referencia }}</td>
-          <td>{{ s.salario_bruto|floatformat:2 }}</td>
-          <td>{{ s.inss|floatformat:2 }}</td>
-          <td>{{ s.irt|floatformat:2 }}</td>
-          <td>{{ s.salario_liquido|floatformat:2 }}</td>
+          <td>{{ n.aluno.nome }} ({{ n.aluno.matricula }})</td>
+          <td>{{ n.turma.nome }}</td>
+          <td>{{ n.disciplina.nome }}</td>
+          <td>{{ n.nota1 }}</td>
+          <td>{{ n.nota2 }}</td>
+          <td>{{ n.nota3 }}</td>
+          <td>{{ n.media_final|floatformat:2 }}</td>
           <td>
-            {% if s.arquivo_holerite %}
-              <a href="{{ s.arquivo_holerite.url }}" class="btn btn-sm btn-success" target="_blank">Ver PDF</a>
+            {% if n.situacao == 'APROVADO' %}
+              <span class="badge bg-success">APROVADO</span>
             {% else %}
-              —
+              <span class="badge bg-danger">REPROVADO</span>
             {% endif %}
           </td>
           <td>
-            <a href="{% url 'administrativo:salario-edit' s.pk %}" class="btn btn-sm btn-primary">🖉</a>
-            <a href="{% url 'administrativo:salario-delete' s.pk %}" class="btn btn-sm btn-danger">🗑</a>
+            <a href="{% url 'pedagogico:nota-edit' n.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'pedagogico:nota-delete' n.pk %}" class="btn btn-sm btn-danger">🗑</a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center">Nenhum salário registrado.</td>
+          <td colspan="9" class="text-center">Nenhuma nota cadastrada.</td>
         </tr>
         {% endfor %}
       </tbody>

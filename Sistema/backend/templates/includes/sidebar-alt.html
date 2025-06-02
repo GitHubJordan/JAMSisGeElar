@@ -5,69 +5,72 @@
   </div>
   <ul class="list-unstyled components">
     {% if request.user.role.name == 'Admin' %}
-        <li>
-          <a href="{% url 'dashboard:admin-dashboard' %}">Dashboard Geral</a>
-        </li>
-        <li>
-          <a data-bs-toggle="collapse" href="#adminSubmenu" role="button" aria-expanded="false">Administração</a>
-          <ul class="collapse list-unstyled" id="adminSubmenu">
-            <li><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
-            <li><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
-            <li><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
-            <li><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
-          </ul>
-        </li>
-        <li>
-          <a data-bs-toggle="collapse" href="#pedagogicoSubmenu" role="button" aria-expanded="false">Pedagógico</a>
-          <ul class="collapse list-unstyled" id="pedagogicoSubmenu">
-            <li><a href="{% url 'pedagogico:turma-list' %}">Turmas</a></li>
-            <li><a href="{% url 'pedagogico:mini-pauta' %}">Mini Pauta</a></li>
-            <li><a href="{% url 'pedagogico:boletim-list' %}">Boletins</a></li>
-          </ul>
-        </li>
-        <li>
-          <a data-bs-toggle="collapse" href="#secretariaSubmenu" role="button" aria-expanded="false">Secretaria</a>
-          <ul class="collapse list-unstyled" id="secretariaSubmenu">
-            <li><a href="{% url 'secretaria:encarregado-list' %}">Encarregados</a></li>
-            <li><a href="{% url 'secretaria:aluno-list' %}">Alunos</a></li>
-            <li><a href="{% url 'secretaria:fatura-list' %}">Faturas</a></li>
-            <li><a href="{% url 'secretaria:contacorrente-list' %}">Contas Correntes</a></li>
-          </ul>
-        </li>
+      <li class="p-2">
+        <a href="{% url 'dashboard:admin-dashboard' %}">Dashboard Geral</a>
+      </li>
+      <li>
+        <a data-bs-toggle="collapse" href="#adminSubmenu" role="button" aria-expanded="false">Administração</a>
+        <ul class="collapse list-unstyled ps-3" id="adminSubmenu">
+          <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
+        </ul>
+      </li>
+      <li>
+        <a data-bs-toggle="collapse" href="#pedagogicoSubmenu" role="button" aria-expanded="false">Pedagógico</a>
+        <ul class="collapse list-unstyled ps-3" id="pedagogicoSubmenu">
+          <li class="py-1"><a href="{% url 'pedagogico:turma-list' %}">Turmas</a></li>
+          <li class="py-1"><a href="{% url 'pedagogico:mini-pauta' %}">Mini Pauta</a></li>
+          <li class="py-1"><a href="{% url 'pedagogico:boletim-list' %}">Boletins</a></li>
+        </ul>
+      </li>
+      <li>
+        <a data-bs-toggle="collapse" href="#secretariaSubmenu" role="button" aria-expanded="false">Secretaria</a>
+        <ul class="collapse list-unstyled ps-3" id="secretariaSubmenu">
+          <li class="py-1"><a href="{% url 'secretaria:encarregado-list' %}">Encarregados</a></li>
+          <li class="py-1"><a href="{% url 'secretaria:aluno-list' %}">Alunos</a></li>
+          <li class="py-1"><a href="{% url 'secretaria:fatura-list' %}">Faturas</a></li>
+          <li class="py-1"><a href="{% url 'secretaria:contacorrente-list' %}">Contas Correntes</a></li>
+        </ul>
+      </li>
+
     {% elif request.user.role.name == 'Diretor' %}
-        <li>
-          <a href="{% url 'dashboard:diretor-dashboard' %}">Dashboard Administrativo</a>
-        </li>
-        <li>
-          <a data-bs-toggle="collapse" href="#administrativoSubmenu" role="button" aria-expanded="false">Área Administrativa</a>
-          <ul class="collapse list-unstyled" id="administrativoSubmenu">
-            <li><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
-            <li><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
-            <li><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
-            <li><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="{% url 'pedagogico:turma-list' %}">Área Pedagógica</a>
-        </li>
-        <li>
-          <a href="{% url 'secretaria:aluno-list' %}">Área Secretaria</a>
-        </li>
+      <li class="p-2">
+        <a href="{% url 'dashboard:diretor-dashboard' %}">Dashboard Administrativo</a>
+      </li>
+      <li>
+        <a data-bs-toggle="collapse" href="#administrativoSubmenuDiretor" role="button" aria-expanded="false">Área Administrativa</a>
+        <ul class="collapse list-unstyled ps-3" id="administrativoSubmenuDiretor">
+          <li class="py-1"><a href="{% url 'administrativo:colaborador-list' %}">Colaboradores</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:salario-list' %}">Salários</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:patrimonio-list' %}">Patrimônio</a></li>
+          <li class="py-1"><a href="{% url 'administrativo:contabilidade-list' %}">Contabilidade</a></li>
+        </ul>
+      </li>
+      <li class="p-2">
+        <a href="{% url 'pedagogico:turma-list' %}">Área Pedagógica</a>
+      </li>
+      <li class="p-2">
+        <a href="{% url 'secretaria:aluno-list' %}">Área da Secretaria</a>
+      </li>
+
     {% elif request.user.role.name == 'Subdiretor Pedagógico' %}
-        <li>
-          <a href="{% url 'dashboard:pedagogico-dashboard' %}">Dashboard Pedagógico</a>
-        </li>
-        <li><a href="{% url 'pedagogico:turma-list' %}">Turmas</a></li>
-        <li><a href="{% url 'pedagogico:mini-pauta' %}">Mini Pauta</a></li>
-        <li><a href="{% url 'pedagogico:boletim-list' %}">Boletins</a></li>
+      <li class="p-2">
+        <a href="{% url 'dashboard:pedagogico-dashboard' %}">Dashboard Pedagógico</a>
+      </li>
+      <li class="p-2"><a href="{% url 'pedagogico:turma-list' %}">Turmas</a></li>
+      <li class="p-2"><a href="{% url 'pedagogico:mini-pauta' %}">Mini Pauta</a></li>
+      <li class="p-2"><a href="{% url 'pedagogico:boletim-list' %}">Boletins</a></li>
+
     {% elif request.user.role.name == 'Secretário' %}
-        <li>
-          <a href="{% url 'dashboard:secretaria-dashboard' %}">Dashboard Secretaria</a>
-        </li>
-        <li><a href="{% url 'secretaria:encarregado-list' %}">Encarregados</a></li>
-        <li><a href="{% url 'secretaria:aluno-list' %}">Alunos</a></li>
-        <li><a href="{% url 'secretaria:fatura-list' %}">Faturas</a></li>
-        <li><a href="{% url 'secretaria:contacorrente-list' %}">Contas Correntes</a></li>
+      <li class="p-2">
+        <a href="{% url 'dashboard:secretaria-dashboard' %}">Dashboard Secretaria</a>
+      </li>
+      <li class="p-2"><a href="{% url 'secretaria:encarregado-list' %}">Encarregados</a></li>
+      <li class="p-2"><a href="{% url 'secretaria:aluno-list' %}">Alunos</a></li>
+      <li class="p-2"><a href="{% url 'secretaria:fatura-list' %}">Faturas</a></li>
+      <li class="p-2"><a href="{% url 'secretaria:contacorrente-list' %}">Contas Correntes</a></li>
     {% endif %}
   </ul>
 </nav>

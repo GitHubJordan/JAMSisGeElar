@@ -1,52 +1,36 @@
-{# Sistema/backend/administrativo/templates/administrativo/salario_list.html #}
+{# Sistema/backend/pedagogico/templates/pedagogico/disciplina_list.html #}
 {% extends 'base.html' %}
-{% block title %}Salários{% endblock %}
+{% block title %}Disciplinas{% endblock %}
 
 {% block content %}
 <div class="d-flex">
   {% include 'includes/sidebar.html' %}
   <div class="flex-grow-1 p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Salários</h2>
-      <a href="{% url 'administrativo:salario-create' %}" class="btn btn-success">+ Novo Salário</a>
+      <h2>Disciplinas</h2>
+      <a href="{% url 'pedagogico:disciplina-create' %}" class="btn btn-success">+ Nova Disciplina</a>
     </div>
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Colaborador</th>
-          <th>Mês/Referencia</th>
-          <th>Salário Bruto</th>
-          <th>INSS</th>
-          <th>IRT</th>
-          <th>Salário Líquido</th>
-          <th>Recibo</th>
+          <th>Nome</th>
+          <th>Carga Horária</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        {% for s in salarios %}
+        {% for d in disciplinas %}
         <tr>
-          <td>{{ s.colaborador.nome }}</td>
-          <td>{{ s.mes_referencia }}</td>
-          <td>{{ s.salario_bruto|floatformat:2 }}</td>
-          <td>{{ s.inss|floatformat:2 }}</td>
-          <td>{{ s.irt|floatformat:2 }}</td>
-          <td>{{ s.salario_liquido|floatformat:2 }}</td>
+          <td>{{ d.nome }}</td>
+          <td>{{ d.carga_horaria }} h/ano</td>
           <td>
-            {% if s.arquivo_holerite %}
-              <a href="{{ s.arquivo_holerite.url }}" class="btn btn-sm btn-success" target="_blank">Ver PDF</a>
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td>
-            <a href="{% url 'administrativo:salario-edit' s.pk %}" class="btn btn-sm btn-primary">🖉</a>
-            <a href="{% url 'administrativo:salario-delete' s.pk %}" class="btn btn-sm btn-danger">🗑</a>
+            <a href="{% url 'pedagogico:disciplina-edit' d.pk %}" class="btn btn-sm btn-primary">🖉</a>
+            <a href="{% url 'pedagogico:disciplina-delete' d.pk %}" class="btn btn-sm btn-danger">🗑</a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center">Nenhum salário registrado.</td>
+          <td colspan="3" class="text-center">Nenhuma disciplina cadastrada.</td>
         </tr>
         {% endfor %}
       </tbody>

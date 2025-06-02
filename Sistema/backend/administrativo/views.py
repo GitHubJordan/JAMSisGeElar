@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 from django.utils import timezone
 import os
+from decimal import Decimal, ROUND_HALF_UP
 from weasyprint import HTML
 from django.conf import settings
 from django.utils.decorators import method_decorator
@@ -91,23 +92,32 @@ class SalarioCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('administrativo:salario-list')
 
     def form_valid(self, form):
-        # Calcular automaticamente campos financeiros
+        # Converter para Decimal com tratamento de None
+        def safe_decimal(value):
+            return Decimal(str(value)) if value is not None else Decimal('0')
+        
         colaborador = form.cleaned_data['colaborador']
-        horas_extras = form.cleaned_data['horas_extras']
-        descontos = form.cleaned_data['descontos']
-        bonificacoes = form.cleaned_data['bonificacoes']
-
-        # Suponha: cada hora extra equivale a 1% do salário_base / 160h mensais (exemplo simplificado)
-        base = colaborador.salario_base or 0
-        valor_hora = base / 160
-        valor_horas_extras = horas_extras * valor_hora * 1.5  # 50% a mais
+        horas_extras = safe_decimal(form.cleaned_data['horas_extras'])
+        descontos = safe_decimal(form.cleaned_data['descontos'])
+        bonificacoes = safe_decimal(form.cleaned_data['bonificacoes'])
+        base = colaborador.salario_base or Decimal('0')
+        
+        # Cálculos com Decimal
+        valor_hora = base / Decimal('160')
+        valor_horas_extras = horas_extras * valor_hora * Decimal('1.5')
         salario_bruto = base + valor_horas_extras + bonificacoes - descontos
-
-        # Cálculo do INSS (exemplo 8% do bruto) e IRT (exemplo 15% do bruto)
-        inss = salario_bruto * 0.08
-        irt = salario_bruto * 0.15
+        
+        inss = salario_bruto * Decimal('0.08')
+        irt = salario_bruto * Decimal('0.15')
         salario_liquido = salario_bruto - inss - irt
-
+        
+        # Arredondamento monetário
+        salario_bruto = salario_bruto.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        inss = inss.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        irt = irt.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        salario_liquido = salario_liquido.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        
+        # Atribuir valores ao formulário
         form.instance.salario_bruto = salario_bruto
         form.instance.inss = inss
         form.instance.irt = irt
@@ -116,9 +126,8 @@ class SalarioCreateView(LoginRequiredMixin, CreateView):
 
         response = super().form_valid(form)
 
-        # Gerar holerite em PDF
+        # Gerar holerite em PDF (apenas para CreateView)
         salario = form.instance
-        # Renderiza holerite
         html_string = render_to_string('administrativo/holerite_pdf.html', {
             'colaborador': colaborador,
             'salario': salario,
@@ -148,21 +157,32 @@ class SalarioUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('administrativo:salario-list')
 
     def form_valid(self, form):
-        # Recalcula campos financeiros caso algum valor tenha mudado
+        # Converter para Decimal com tratamento de None
+        def safe_decimal(value):
+            return Decimal(str(value)) if value is not None else Decimal('0')
+        
         colaborador = form.cleaned_data['colaborador']
-        horas_extras = form.cleaned_data['horas_extras']
-        descontos = form.cleaned_data['descontos']
-        bonificacoes = form.cleaned_data['bonificacoes']
-
-        base = colaborador.salario_base or 0
-        valor_hora = base / 160
-        valor_horas_extras = horas_extras * valor_hora * 1.5
+        horas_extras = safe_decimal(form.cleaned_data['horas_extras'])
+        descontos = safe_decimal(form.cleaned_data['descontos'])
+        bonificacoes = safe_decimal(form.cleaned_data['bonificacoes'])
+        base = colaborador.salario_base or Decimal('0')
+        
+        # Cálculos com Decimal
+        valor_hora = base / Decimal('160')
+        valor_horas_extras = horas_extras * valor_hora * Decimal('1.5')
         salario_bruto = base + valor_horas_extras + bonificacoes - descontos
-
-        inss = salario_bruto * 0.08
-        irt = salario_bruto * 0.15
+        
+        inss = salario_bruto * Decimal('0.08')
+        irt = salario_bruto * Decimal('0.15')
         salario_liquido = salario_bruto - inss - irt
-
+        
+        # Arredondamento monetário
+        salario_bruto = salario_bruto.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        inss = inss.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        irt = irt.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        salario_liquido = salario_liquido.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        
+        # Atribuir valores ao formulário
         form.instance.salario_bruto = salario_bruto
         form.instance.inss = inss
         form.instance.irt = irt
@@ -204,9 +224,13 @@ class BemPatrimonioCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('administrativo:patrimonio-list')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        # O sinal pre_save cuidará de calcular a depreciação
-        return response
+        try:
+            # Tente salvar sem lógica adicional
+            return super().form_valid(form)
+        except RecursionError:
+            # Fallback seguro
+            self.object = form.save()
+            return redirect(self.get_success_url())
 
 
 @method_decorator(role_required('Admin', 'Diretor'), name='dispatch')

@@ -111,7 +111,7 @@ class Fatura(models.Model):
         ('PAGO', 'PAGO'),
     ]
 
-    numero = models.CharField('Número da Fatura', max_length=20, unique=True)
+    numero = models.CharField('Número da Fatura', max_length=20, unique=True, blank=True, null=True)
     aluno = models.ForeignKey(
         Aluno,
         on_delete=models.CASCADE,
@@ -120,7 +120,7 @@ class Fatura(models.Model):
     )
     tipo = models.CharField('Tipo', max_length=15, choices=TIPO_CHOICES)
     valor_original = models.DecimalField('Valor Original', max_digits=12, decimal_places=2)
-    valor_atual = models.DecimalField('Valor Atual', max_digits=12, decimal_places=2)
+    valor_atual = models.DecimalField('Valor Atual', max_digits=12, decimal_places=2, blank=True, null=True)
     data_emissao = models.DateField('Data de Emissão')
     data_vencimento = models.DateField('Data de Vencimento')
     status = models.CharField('Status', max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
