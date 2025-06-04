@@ -6,8 +6,8 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim
-from .forms import TurmaForm, DisciplinaForm, TurmaDisciplinaForm, MatriculaForm, NotaForm
+from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim, AnoLetivo, Calendario
+from .forms import TurmaForm, DisciplinaForm, TurmaDisciplinaForm, MatriculaForm, NotaForm, AnoLetivoForm, CalendarioForm
 from accounts.decorators import role_required
 
 
@@ -23,7 +23,7 @@ def usuario_redirect_pedagogico(request):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class TurmaListView(LoginRequiredMixin, ListView):
     model = Turma
-    template_name = 'pedagogico/turma_list.html'
+    template_name = 'pedagogico/turma/turma_list.html'
     context_object_name = 'turmas'
     paginate_by = 20
     ordering = ['nome']
@@ -33,7 +33,7 @@ class TurmaListView(LoginRequiredMixin, ListView):
 class TurmaCreateView(LoginRequiredMixin, CreateView):
     model = Turma
     form_class = TurmaForm
-    template_name = 'pedagogico/turma_form.html'
+    template_name = 'pedagogico/turma/turma_form.html'
     success_url = reverse_lazy('pedagogico:turma-list')
 
 
@@ -41,14 +41,14 @@ class TurmaCreateView(LoginRequiredMixin, CreateView):
 class TurmaUpdateView(LoginRequiredMixin, UpdateView):
     model = Turma
     form_class = TurmaForm
-    template_name = 'pedagogico/turma_form.html'
+    template_name = 'pedagogico/turma/turma_form.html'
     success_url = reverse_lazy('pedagogico:turma-list')
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class TurmaDeleteView(LoginRequiredMixin, DeleteView):
     model = Turma
-    template_name = 'pedagogico/turma_confirm_delete.html'
+    template_name = 'pedagogico/turma/turma_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:turma-list')
 
 
@@ -59,7 +59,7 @@ class TurmaDeleteView(LoginRequiredMixin, DeleteView):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class DisciplinaListView(LoginRequiredMixin, ListView):
     model = Disciplina
-    template_name = 'pedagogico/disciplina_list.html'
+    template_name = 'pedagogico/disciplina/disciplina_list.html'
     context_object_name = 'disciplinas'
     paginate_by = 20
     ordering = ['nome']
@@ -69,7 +69,7 @@ class DisciplinaListView(LoginRequiredMixin, ListView):
 class DisciplinaCreateView(LoginRequiredMixin, CreateView):
     model = Disciplina
     form_class = DisciplinaForm
-    template_name = 'pedagogico/disciplina_form.html'
+    template_name = 'pedagogico/disciplina/disciplina_form.html'
     success_url = reverse_lazy('pedagogico:disciplina-list')
 
 
@@ -77,14 +77,14 @@ class DisciplinaCreateView(LoginRequiredMixin, CreateView):
 class DisciplinaUpdateView(LoginRequiredMixin, UpdateView):
     model = Disciplina
     form_class = DisciplinaForm
-    template_name = 'pedagogico/disciplina_form.html'
+    template_name = 'pedagogico/disciplina/disciplina_form.html'
     success_url = reverse_lazy('pedagogico:disciplina-list')
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class DisciplinaDeleteView(LoginRequiredMixin, DeleteView):
     model = Disciplina
-    template_name = 'pedagogico/disciplina_confirm_delete.html'
+    template_name = 'pedagogico/disciplina/disciplina_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:disciplina-list')
 
 
@@ -95,7 +95,7 @@ class DisciplinaDeleteView(LoginRequiredMixin, DeleteView):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class TurmaDisciplinaListView(LoginRequiredMixin, ListView):
     model = TurmaDisciplina
-    template_name = 'pedagogico/turmadisciplina_list.html'
+    template_name = 'pedagogico/turmadisciplina/turmadisciplina_list.html'
     context_object_name = 'associacoes'
     paginate_by = 20
     ordering = ['turma__nome', 'disciplina__nome']
@@ -108,7 +108,7 @@ class TurmaDisciplinaListView(LoginRequiredMixin, ListView):
 class TurmaDisciplinaCreateView(LoginRequiredMixin, CreateView):
     model = TurmaDisciplina
     form_class = TurmaDisciplinaForm
-    template_name = 'pedagogico/turmadisciplina_form.html'
+    template_name = 'pedagogico/turmadisciplina/turmadisciplina_form.html'
     success_url = reverse_lazy('pedagogico:turmadisciplina-list')
 
 
@@ -116,14 +116,14 @@ class TurmaDisciplinaCreateView(LoginRequiredMixin, CreateView):
 class TurmaDisciplinaUpdateView(LoginRequiredMixin, UpdateView):
     model = TurmaDisciplina
     form_class = TurmaDisciplinaForm
-    template_name = 'pedagogico/turmadisciplina_form.html'
+    template_name = 'pedagogico/turmadisciplina/turmadisciplina_form.html'
     success_url = reverse_lazy('pedagogico:turmadisciplina-list')
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class TurmaDisciplinaDeleteView(LoginRequiredMixin, DeleteView):
     model = TurmaDisciplina
-    template_name = 'pedagogico/turmadisciplina_confirm_delete.html'
+    template_name = 'pedagogico/turmadisciplina/turmadisciplina_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:turmadisciplina-list')
 
 
@@ -134,7 +134,7 @@ class TurmaDisciplinaDeleteView(LoginRequiredMixin, DeleteView):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class MatriculaListView(LoginRequiredMixin, ListView):
     model = Matricula
-    template_name = 'pedagogico/matricula_list.html'
+    template_name = 'pedagogico/matricula/matricula_list.html'
     context_object_name = 'matriculas'
     paginate_by = 20
     ordering = ['-data_matricula']
@@ -147,7 +147,7 @@ class MatriculaListView(LoginRequiredMixin, ListView):
 class MatriculaCreateView(LoginRequiredMixin, CreateView):
     model = Matricula
     form_class = MatriculaForm
-    template_name = 'pedagogico/matricula_form.html'
+    template_name = 'pedagogico/matricula/matricula_form.html'
     success_url = reverse_lazy('pedagogico:matricula-list')
 
 
@@ -155,14 +155,14 @@ class MatriculaCreateView(LoginRequiredMixin, CreateView):
 class MatriculaUpdateView(LoginRequiredMixin, UpdateView):
     model = Matricula
     form_class = MatriculaForm
-    template_name = 'pedagogico/matricula_form.html'
+    template_name = 'pedagogico/matricula/matricula_form.html'
     success_url = reverse_lazy('pedagogico:matricula-list')
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class MatriculaDeleteView(LoginRequiredMixin, DeleteView):
     model = Matricula
-    template_name = 'pedagogico/matricula_confirm_delete.html'
+    template_name = 'pedagogico/matricula/matricula_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:matricula-list')
 
 
@@ -173,7 +173,7 @@ class MatriculaDeleteView(LoginRequiredMixin, DeleteView):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class NotaListView(LoginRequiredMixin, ListView):
     model = Nota
-    template_name = 'pedagogico/nota_list.html'
+    template_name = 'pedagogico/nota/nota_list.html'
     context_object_name = 'notas'
     paginate_by = 20
     ordering = ['aluno__nome']
@@ -186,7 +186,7 @@ class NotaListView(LoginRequiredMixin, ListView):
 class NotaCreateView(LoginRequiredMixin, CreateView):
     model = Nota
     form_class = NotaForm
-    template_name = 'pedagogico/nota_form.html'
+    template_name = 'pedagogico/nota/nota_form.html'
     success_url = reverse_lazy('pedagogico:nota-list')
 
 
@@ -194,14 +194,14 @@ class NotaCreateView(LoginRequiredMixin, CreateView):
 class NotaUpdateView(LoginRequiredMixin, UpdateView):
     model = Nota
     form_class = NotaForm
-    template_name = 'pedagogico/nota_form.html'
+    template_name = 'pedagogico/nota/nota_form.html'
     success_url = reverse_lazy('pedagogico:nota-list')
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class NotaDeleteView(LoginRequiredMixin, DeleteView):
     model = Nota
-    template_name = 'pedagogico/nota_confirm_delete.html'
+    template_name = 'pedagogico/nota/nota_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:nota-list')
 
 
@@ -212,7 +212,7 @@ class NotaDeleteView(LoginRequiredMixin, DeleteView):
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class BoletimListView(LoginRequiredMixin, ListView):
     model = Boletim
-    template_name = 'pedagogico/boletim_list.html'
+    template_name = 'pedagogico/boletim/boletim_list.html'
     context_object_name = 'boletins'
     paginate_by = 20
     ordering = ['-data_geracao']
@@ -279,6 +279,88 @@ def gerar_boletim(request):
 
     # Se GET, exibimos o formulário de seleção de Turma e Trimestre
     turmas = Turma.objects.all().order_by('nome')
-    return render(request, 'pedagogico/boletim_list.html', {
+    return render(request, 'pedagogico/boletim/boletim_list.html', {
         'turmas': turmas
     })
+
+# ------------------------------
+# CRUD de Ano Letivo
+# ------------------------------
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class AnoLetivoListView(ListView):
+    model = AnoLetivo
+    template_name = 'pedagogico/anolectivo/anoletivo_list.html'
+    context_object_name = 'anos'
+    paginate_by = 20
+    ordering = ['-data_inicio']
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class AnoLetivoCreateView(CreateView):
+    model = AnoLetivo
+    form_class = AnoLetivoForm
+    template_name = 'pedagogico/anolectivo/anoletivo_form.html'
+    success_url = reverse_lazy('pedagogico:anoletivo-list')
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class AnoLetivoUpdateView(UpdateView):
+    model = AnoLetivo
+    form_class = AnoLetivoForm
+    template_name = 'pedagogico/anolectivo/anoletivo_form.html'
+    success_url = reverse_lazy('pedagogico:anoletivo-list')
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class AnoLetivoDeleteView(DeleteView):
+    model = AnoLetivo
+    template_name = 'pedagogico/anolectivo/anoletivo_confirm_delete.html'
+    success_url = reverse_lazy('pedagogico:anoletivo-list')
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Impede excluir se for o ano ativo
+        if obj.ativo:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Não é permitido excluir o ano letivo ativo.")
+        return super().dispatch(request, *args, **kwargs)
+
+
+# ------------------------------
+# CRUD de Calendário (opcional)
+# ------------------------------
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class CalendarioListView(ListView):
+    model = Calendario
+    template_name = 'pedagogico/calendario/calendario_list.html'
+    context_object_name = 'eventos'
+    paginate_by = 20
+    ordering = ['data']
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('ano_letivo')
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class CalendarioCreateView(CreateView):
+    model = Calendario
+    form_class = CalendarioForm
+    template_name = 'pedagogico/calendario/calendario_form.html'
+    success_url = reverse_lazy('pedagogico:calendario-list')
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class CalendarioUpdateView(UpdateView):
+    model = Calendario
+    form_class = CalendarioForm
+    template_name = 'pedagogico/calendario/calendario_form.html'
+    success_url = reverse_lazy('pedagogico:calendario-list')
+
+
+@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+class CalendarioDeleteView(DeleteView):
+    model = Calendario
+    template_name = 'pedagogico/calendario/calendario_confirm_delete.html'
+    success_url = reverse_lazy('pedagogico:calendario-list')

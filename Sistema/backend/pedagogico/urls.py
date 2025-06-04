@@ -42,4 +42,16 @@ urlpatterns = [
     # Boletim: listagem + formulário de geração
     path('boletins/', views.BoletimListView.as_view(), name='boletim-list'),
     path('boletins/gerar/', views.gerar_boletim, name='boletim-gerar'),
+
+    # CRUD Ano Letivo
+    path('anoletivo/', views.AnoLetivoListView.as_view(), name='anoletivo-list'),
+    path('anoletivo/new/', views.AnoLetivoCreateView.as_view(), name='anoletivo-create'),
+    path('anoletivo/edit/<int:pk>/', views.AnoLetivoUpdateView.as_view(), name='anoletivo-edit'),
+    path('anoletivo/delete/<int:pk>/', views.AnoLetivoDeleteView.as_view(), name='anoletivo-delete'),
+
+    # CRUD Calendário (opcional)
+    path('calendario/', views.CalendarioListView.as_view(), name='calendario-list'),
+    path('calendario/new/', views.CalendarioCreateView.as_view(), name='calendario-create'),
+    path('calendario/edit/<int:pk>/', views.CalendarioUpdateView.as_view(), name='calendario-edit'),
+    path('calendario/delete/<int:pk>/', views.CalendarioDeleteView.as_view(), name='calendario-delete'),
 ]

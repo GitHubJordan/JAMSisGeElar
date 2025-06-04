@@ -1,6 +1,82 @@
 from django.db import models
+from django.forms import ValidationError
 from accounts.models import User
 from secretaria.models import Aluno
+
+
+class AnoLetivo(models.Model):
+    """
+    Representa um ano acadêmico (pode ser 2025/2026 ou apenas 2025).
+    """
+    nome = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text="Ex.: 2025, 2025-2026 ou 2025.1"
+    )
+    data_inicio = models.DateField(
+        help_text="Data de início do ano letivo"
+    )
+    data_fim = models.DateField(
+        help_text="Data de término do ano letivo"
+    )
+    ativo = models.BooleanField(
+        default=False,
+        help_text="Marcar apenas um ano como ativo"
+    )
+
+    class Meta:
+        ordering = ['-data_inicio']
+        verbose_name = "Ano Letivo"
+        verbose_name_plural = "Anos Letivos"
+
+    def __str__(self):
+        return self.nome
+
+    def clean(self):
+        """
+        Garante que:
+        - data_inicio < data_fim
+        - se ativo=True, desmarcar outros anos ativos
+        """
+        if self.data_inicio >= self.data_fim:
+            raise ValidationError("A data de início deve ser anterior à data de fim.")
+        # Verifica unicidade de ativo
+        if self.ativo:
+            qs = AnoLetivo.objects.filter(ativo=True)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError("Já existe outro Ano Letivo ativo. Desmarque-o antes de ativar este.")
+
+    def save(self, *args, **kwargs):
+        # Caso esteja sendo marcado como ativo, desmarcar os demais
+        if self.ativo:
+            AnoLetivo.objects.filter(ativo=True).exclude(pk=self.pk).update(ativo=False)
+        super().save(*args, **kwargs)
+
+# Opcional: modelo para eventos/feriados acadêmicos vinculados a um ano letivo
+class Calendario(models.Model):
+    """
+    Eventos acadêmicos (feriados, início de período, encerramento, etc.) para cada Ano Letivo.
+    """
+    ano_letivo = models.ForeignKey(AnoLetivo, on_delete=models.CASCADE, related_name='eventos')
+    titulo = models.CharField(max_length=100)
+    data = models.DateField()
+    descricao = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['data']
+        unique_together = ('ano_letivo', 'data', 'titulo')
+        verbose_name = "Evento no Calendário"
+        verbose_name_plural = "Calendário de Eventos"
+
+    def __str__(self):
+        return f"{self.titulo} – {self.data:%d/%m/%Y}"
+
+    def clean(self):
+        # Garante que a data do evento esteja dentro do intervalo do ano letivo
+        if not (self.ano_letivo.data_inicio <= self.data <= self.ano_letivo.data_fim):
+            raise ValidationError("A data do evento deve estar entre o início e o fim do Ano Letivo.")
 
 class Turma(models.Model):
     """
@@ -26,6 +102,13 @@ class Turma(models.Model):
         max_length=150,
         blank=True,
         help_text='Nome ou FK para Colaborador (futuro)'
+    )
+    ano_letivo = models.ForeignKey(
+        AnoLetivo,
+        on_delete=models.PROTECT,
+        null=True,        # permitir NULO
+        blank=True,       # permitir formulário em branco, se usar admin/forms
+        related_name="turmas",
     )
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Atualizado em', auto_now=True)
@@ -103,6 +186,7 @@ class Matricula(models.Model):
         on_delete=models.CASCADE,
         related_name='matriculas'
     )
+    ano_letivo = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT)
     data_matricula = models.DateField('Data de Matrícula')
     status = models.CharField('Status', max_length=12, choices=STATUS_CHOICES, default='ATIVO')
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
@@ -136,6 +220,7 @@ class Nota(models.Model):
         on_delete=models.CASCADE,
         related_name='notas'
     )
+    ano_letivo = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT)
     nota1 = models.DecimalField('N1', max_digits=5, decimal_places=2, default=0)
     nota2 = models.DecimalField('N2', max_digits=5, decimal_places=2, default=0)
     nota3 = models.DecimalField('N3', max_digits=5, decimal_places=2, default=0)

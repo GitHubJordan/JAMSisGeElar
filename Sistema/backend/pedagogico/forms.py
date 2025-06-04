@@ -1,7 +1,7 @@
 # Sistema/backend/pedagogico/forms.py
 
 from django import forms
-from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota
+from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, AnoLetivo, Calendario
 
 class TurmaForm(forms.ModelForm):
     class Meta:
@@ -84,4 +84,34 @@ class NotaForm(forms.ModelForm):
         # Verifica unicidade de Nota para tupla (aluno, turma, disciplina)
         if Nota.objects.filter(aluno=aluno, turma=turma, disciplina=disciplina).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Já existe uma nota cadastrada para este Aluno/Turma/Disciplina.")
+        return cleaned
+
+
+class AnoLetivoForm(forms.ModelForm):
+    class Meta:
+        model = AnoLetivo
+        fields = ['nome', 'data_inicio', 'data_fim', 'ativo']
+        widgets = {
+            'data_inicio': forms.DateInput(attrs={'type': 'date'}),
+            'data_fim': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        # As validações de datas e ano ativo já estão em clean() do model
+        return cleaned
+
+
+class CalendarioForm(forms.ModelForm):
+    class Meta:
+        model = Calendario
+        fields = ['ano_letivo', 'titulo', 'data', 'descricao']
+        widgets = {
+            'ano_letivo': forms.Select(),
+            'data': forms.DateInput(attrs={'type': 'date'}),
+            'descricao': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
         return cleaned

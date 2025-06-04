@@ -1,0 +1,18 @@
+{# Sistema/backend/pedagogico/templates/pedagogico/anoletivo_confirm_delete.html #}
+{% extends 'base.html' %}
+
+{% block title %}Excluir Ano Letivo{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+  <div class="flex-grow-1 p-4" style="max-width: 600px;">
+    <h2 class="mb-4">Excluir Ano Letivo</h2>
+    <p>Tem certeza que deseja excluir o ano letivo <strong>{{ object.nome }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+      <a href="{% url 'pedagogico:anoletivo-list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
