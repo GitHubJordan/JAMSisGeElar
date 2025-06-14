@@ -6,20 +6,22 @@ from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, AnoLeti
 class TurmaForm(forms.ModelForm):
     class Meta:
         model = Turma
-        fields = ['nome', 'nivel', 'turno', 'professor_responsavel']
+        fields = ['nome', 'nivel', 'turno', 'professor_responsavel', 'ano_letivo']
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Ex.: 10º Ano A'}),
             'professor_responsavel': forms.TextInput(attrs={'placeholder': 'Nome do professor'}),
+            'ano_letivo': forms.Select(),
         }
 
 
 class DisciplinaForm(forms.ModelForm):
     class Meta:
         model = Disciplina
-        fields = ['nome', 'carga_horaria']
+        fields = ['nome', 'carga_horaria', 'professor_responsavel']
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Ex.: Matemática'}),
             'carga_horaria': forms.NumberInput(attrs={'min': 0}),
+            'professor_responsavel': forms.TextInput(attrs={'placeholder': 'Nome do professor'}),
         }
 
 
@@ -45,13 +47,20 @@ class TurmaDisciplinaForm(forms.ModelForm):
 class MatriculaForm(forms.ModelForm):
     class Meta:
         model = Matricula
-        fields = ['aluno', 'turma', 'data_matricula', 'status']
+        fields = ['aluno', 'turma', 'data_matricula', 'status', 'ano_letivo']
         widgets = {
             'aluno': forms.Select(),
             'turma': forms.Select(),
             'data_matricula': forms.DateInput(attrs={'type': 'date'}),
             'status': forms.Select(),
+            'ano_letivo': forms.Select(attrs={'readonly': 'readonly'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        self.fields['ano_letivo'].queryset = AnoLetivo.objects.filter(pk=ativo.pk) if ativo else AnoLetivo.objects.none()
+        self.fields['ano_letivo'].initial = ativo
 
     def clean(self):
         cleaned = super().clean()
@@ -66,7 +75,7 @@ class MatriculaForm(forms.ModelForm):
 class NotaForm(forms.ModelForm):
     class Meta:
         model = Nota
-        fields = ['aluno', 'turma', 'disciplina', 'nota1', 'nota2', 'nota3']
+        fields = ['aluno', 'turma', 'disciplina', 'nota1', 'nota2', 'nota3', 'ano_letivo']
         widgets = {
             'aluno': forms.Select(),
             'turma': forms.Select(),
@@ -74,7 +83,14 @@ class NotaForm(forms.ModelForm):
             'nota1': forms.NumberInput(attrs={'step': '0.01', 'min': 0, 'max': 20}),
             'nota2': forms.NumberInput(attrs={'step': '0.01', 'min': 0, 'max': 20}),
             'nota3': forms.NumberInput(attrs={'step': '0.01', 'min': 0, 'max': 20}),
+            'ano_letivo': forms.Select(attrs={'readonly':'readonly'}),
         }
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        self.fields['ano_letivo'].queryset = AnoLetivo.objects.filter(pk=ativo.pk) if ativo else AnoLetivo.objects.none()
+        self.fields['ano_letivo'].initial = ativo
 
     def clean(self):
         cleaned = super().clean()

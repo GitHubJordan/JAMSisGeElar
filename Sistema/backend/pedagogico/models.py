@@ -128,6 +128,12 @@ class Disciplina(models.Model):
     """
     nome = models.CharField('Nome da Disciplina', max_length=100)
     carga_horaria = models.PositiveIntegerField('Carga Horária (horas/ano)')
+    professor_responsavel = models.CharField(
+        'Professor Responsável',
+        max_length=150,
+        blank=True,
+        help_text='Nome ou FK para Colaborador (futuro)'
+    )
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Atualizado em', auto_now=True)
 

@@ -10,6 +10,10 @@ from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim
 from .forms import TurmaForm, DisciplinaForm, TurmaDisciplinaForm, MatriculaForm, NotaForm, AnoLetivoForm, CalendarioForm
 from accounts.decorators import role_required
 
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.http import HttpResponse
+
 
 @login_required
 @role_required('Admin', 'Diretor', 'Pedagogico')
@@ -28,6 +32,10 @@ class TurmaListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     ordering = ['nome']
 
+    def get_queryset(self):
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        qs = super().get_queryset()
+        return qs.filter(ano_letivo=ano)
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class TurmaCreateView(LoginRequiredMixin, CreateView):
@@ -139,8 +147,14 @@ class MatriculaListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     ordering = ['-data_matricula']
 
+    # def get_queryset(self):
+    #    return super().get_queryset().select_related('aluno', 'turma')
+
     def get_queryset(self):
-        return super().get_queryset().select_related('aluno', 'turma')
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        qs = super().get_queryset()
+        return qs.filter(ano_letivo=ano)
+
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -178,9 +192,13 @@ class NotaListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     ordering = ['aluno__nome']
 
-    def get_queryset(self):
-        return super().get_queryset().select_related('aluno', 'turma', 'disciplina')
+    # def get_queryset(self):
+    #    return super().get_queryset().select_related('aluno', 'turma', 'disciplina')
 
+    def get_queryset(self):
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        qs = super().get_queryset()
+        return qs.filter(ano_letivo=ano)
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class NotaCreateView(LoginRequiredMixin, CreateView):
@@ -287,7 +305,7 @@ def gerar_boletim(request):
 # CRUD de Ano Letivo
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class AnoLetivoListView(ListView):
     model = AnoLetivo
     template_name = 'pedagogico/anolectivo/anoletivo_list.html'
@@ -296,7 +314,7 @@ class AnoLetivoListView(ListView):
     ordering = ['-data_inicio']
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class AnoLetivoCreateView(CreateView):
     model = AnoLetivo
     form_class = AnoLetivoForm
@@ -304,7 +322,7 @@ class AnoLetivoCreateView(CreateView):
     success_url = reverse_lazy('pedagogico:anoletivo-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class AnoLetivoUpdateView(UpdateView):
     model = AnoLetivo
     form_class = AnoLetivoForm
@@ -312,7 +330,7 @@ class AnoLetivoUpdateView(UpdateView):
     success_url = reverse_lazy('pedagogico:anoletivo-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class AnoLetivoDeleteView(DeleteView):
     model = AnoLetivo
     template_name = 'pedagogico/anolectivo/anoletivo_confirm_delete.html'
@@ -328,10 +346,10 @@ class AnoLetivoDeleteView(DeleteView):
 
 
 # ------------------------------
-# CRUD de Calendário (opcional)
+# CRUD de Calendário
 # ------------------------------
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class CalendarioListView(ListView):
     model = Calendario
     template_name = 'pedagogico/calendario/calendario_list.html'
@@ -343,7 +361,7 @@ class CalendarioListView(ListView):
         return super().get_queryset().select_related('ano_letivo')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class CalendarioCreateView(CreateView):
     model = Calendario
     form_class = CalendarioForm
@@ -351,7 +369,7 @@ class CalendarioCreateView(CreateView):
     success_url = reverse_lazy('pedagogico:calendario-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class CalendarioUpdateView(UpdateView):
     model = Calendario
     form_class = CalendarioForm
@@ -359,8 +377,50 @@ class CalendarioUpdateView(UpdateView):
     success_url = reverse_lazy('pedagogico:calendario-list')
 
 
-@method_decorator(role_required('Admin', 'Diretor', 'Subdiretor Pedagógico'), name='dispatch')
+@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class CalendarioDeleteView(DeleteView):
     model = Calendario
     template_name = 'pedagogico/calendario/calendario_confirm_delete.html'
     success_url = reverse_lazy('pedagogico:calendario-list')
+
+#---------------------------------
+# View para exibir o calendário em formato mensal
+#---------------------------------
+
+@login_required
+@role_required('Admin', 'Diretor', 'Pedagogico')
+def calendario_mensal(request):
+    """
+    View para exibir o calendário em formato mensal.
+    """
+    from django.utils import timezone
+    from .models import Calendario
+
+    ano_atual = timezone.now().year
+    meses = Calendario.objects.filter(data__year=ano_atual).order_by('data')
+
+    return render(request, 'pedagogico/calendario/calendario_mensal.html', {
+        'meses': meses,
+        'ano_atual': ano_atual,
+    })
+
+# --------------------------------
+# CRUE de Relatório Academinico
+# --------------------------------
+@login_required
+@role_required('Admin','Diretor','Subdiretor Pedagógico')
+def relatorio_ano_letivo(request):
+    ano = AnoLetivo.objects.filter(ativo=True).first()
+    matriculas = Matricula.objects.filter(ano_letivo=ano).select_related('aluno','turma')
+    notas = Nota.objects.filter(ano_letivo=ano).select_related('aluno','disciplina','turma')
+
+    if request.GET.get('format') == 'pdf':
+        html = render_to_string('pedagogico/relatorio_pdf.html',{
+            'ano': ano,'matriculas': matriculas,'notas': notas
+        })
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+        return HttpResponse(pdf, content_type='application/pdf')
+
+    return render(request,'pedagogico/relatorio.html',{
+        'ano':ano,'matriculas':matriculas,'notas':notas
+    })

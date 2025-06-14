@@ -54,4 +54,7 @@ urlpatterns = [
     path('calendario/new/', views.CalendarioCreateView.as_view(), name='calendario-create'),
     path('calendario/edit/<int:pk>/', views.CalendarioUpdateView.as_view(), name='calendario-edit'),
     path('calendario/delete/<int:pk>/', views.CalendarioDeleteView.as_view(), name='calendario-delete'),
+
+    # Relatório de Ano Letivo
+    path('relatorio/', views.relatorio_ano_letivo, name='relatorio-ano'),
 ]
