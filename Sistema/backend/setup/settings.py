@@ -94,10 +94,15 @@ AUTH_USER_MODEL = 'accounts.User'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'jamsisgeelar_db',
+        'USER': 'jamadmin',
+        'PASSWORD': 'Emit64euHivvYS51vlTaabUgSJgvQMJ8',
+        'HOST': 'postgresql://jamadmin:Emit64euHivvYS51vlTaabUgSJgvQMJ8@dpg-d2uoitmr433s73eh27t0-a/jamsisgeelar_db',
+        'PORT': '5432',
     }
 }
+
 
 # Expira a sessão após 45 minutos (2.700 segundos)
 SESSION_COOKIE_AGE = 60 * 45
