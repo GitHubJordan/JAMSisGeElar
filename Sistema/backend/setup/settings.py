@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': 'jamsisgeelar_db',
         'USER': 'jamadmin',
         'PASSWORD': 'Emit64euHivvYS51vlTaabUgSJgvQMJ8',
-        'HOST': 'postgresql://jamadmin:Emit64euHivvYS51vlTaabUgSJgvQMJ8@dpg-d2uoitmr433s73eh27t0-a/jamsisgeelar_db',
+        'HOST': 'dpg-d2uoitmr433s73eh27t0-a.frankfurt-postgres.render.com',  # apenas o host
         'PORT': '5432',
     }
 }
