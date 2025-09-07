@@ -150,16 +150,26 @@ USE_TZ = True
 # Caminho base (já está definido no teu arquivo)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Arquivos estáticos (CSS, JS, imagens)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Pasta de estáticos usada no dev
-]
+# ============================
+# Arquivos estáticos e mídia
+# ============================
 
-# Pasta para onde o Django vai copiar todos os estáticos em produção
+# URL pública para acessar arquivos estáticos
+STATIC_URL = '/static/'
+
+# Diretório onde o collectstatic vai juntar tudo em produção
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Arquivos de mídia (uploads)
+# Diretórios adicionais onde o Django procura estáticos (útil no dev)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Whitenoise (somente produção)
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Uploads de usuários (não ficam salvos no Render de forma persistente!)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
