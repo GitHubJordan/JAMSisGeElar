@@ -1,98 +1,264 @@
-{# Sistema/backend/secretaria/templates/secretaria/aluno_form.html #}
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}
-  {% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}
+  {% if form.instance.pk %}Editar Aluno - Sistema Escolar{% else %}Novo Aluno - Sistema Escolar{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4" style="max-width: 800px;">
-    <h2 class="mb-4">{% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}</h2>
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-purple-600 mt-2">
+        {% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        Utilize as abas para navegar pelas seções do formulário
+      </p>
+    </div>
 
-    <form method="post" enctype="multipart/form-data">
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
+      
+      <!-- Abas -->
+      <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+          {% for key, label in tabs %}
+          <button type="button"
+                  data-target="#{{ key }}"
+                  class="tab-btn py-3 px-4 font-medium text-sm rounded-t-lg
+                         {% if forloop.first %}bg-purple-50 text-purple-600 border-b-2 border-purple-500{% else %}text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} 
+                         transition-all duration-300">
+            {{ label }}
+          </button>
+          {% endfor %}
+        </nav>
+      </div>
 
-      <!-- Nav tabs -->
-      <ul class="nav nav-tabs" id="alunoTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="tab-dadospessoais" data-bs-toggle="tab" data-bs-target="#dadospessoais" type="button" role="tab">Dados Pessoais</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-dadosencarregado" data-bs-toggle="tab" data-bs-target="#dadosencarregado" type="button" role="tab">Dados do Encarregado</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-documentos" data-bs-toggle="tab" data-bs-target="#documentos" type="button" role="tab">Documentos</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-observacoes" data-bs-toggle="tab" data-bs-target="#observacoes" type="button" role="tab">Observações</button>
-        </li>
-      </ul>
-
-      <!-- Tab panes -->
-      <div class="tab-content border border-top-0 p-4">
-        <!-- Aba: Dados Pessoais -->
-        <div class="tab-pane fade show active" id="dadospessoais" role="tabpanel">
-          <div class="mb-3">
-            {{ form.nome|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.data_nascimento|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.genero|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.endereco|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.documento|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.foto|as_crispy_field }}
-          </div>
-        </div>
-
-        <!-- Aba: Dados do Encarregado -->
-        <div class="tab-pane fade" id="dadosencarregado" role="tabpanel">
-          <div class="mb-3">
-            {{ form.encarregado|as_crispy_field }}
-          </div>
+      <!-- Conteúdo das abas -->
+      <div class="space-y-6">
+        <div id="dadospessoais" class="tab-content space-y-6">
+          <!-- Grupo: Dados Pessoais -->
           <div>
-            <a href="{% url 'secretaria:encarregado-create' %}" class="btn btn-sm btn-outline-secondary mb-2">+ Novo Encarregado</a>
+            <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Dados Pessoais
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {% for field in form %}
+                {% if field.name in 'nome,data_nascimento,genero,documento,foto' %}
+                <div class="{% if field.name == 'endereco' %}md:col-span-2{% endif %}">
+                  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                  </label>
+                  <div class="relative">
+                    <!-- Ícones condicionais -->
+                    {% if field.name == 'nome' %}
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    {% elif field.name == 'data_nascimento' %}
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    {% elif field.name == 'documento' %}
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    {% endif %}
+                    {{ field|as_crispy_field }}
+                    {% if field.errors %}
+                      <div class="mt-1 text-sm text-red-600">
+                        {{ field.errors }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+              {% endfor %}
+              <div class="md:col-span-2">
+                <label for="{{ form.endereco.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ form.endereco.label }}{% if form.endereco.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  {{ form.endereco|as_crispy_field }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Aba: Documentos -->
-        <div class="tab-pane fade" id="documentos" role="tabpanel">
-          <div class="mb-3">
-            {{ form.comprovante_residencia|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.historico_escolar|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ form.outros_documentos|as_crispy_field }}
+        <div id="dadosencarregado" class="tab-content hidden space-y-6">
+          <!-- Grupo: Dados do Encarregado -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Dados do Encarregado
+            </h3>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              {{ form.encarregado|as_crispy_field }}
+            </div>
+            <a href="{% url 'secretaria:encarregado-create' %}" class="mt-2 inline-block text-sm text-amber-500 hover:underline flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Novo Encarregado
+            </a>
           </div>
         </div>
 
-        <!-- Aba: Observações -->
-        <div class="tab-pane fade" id="observacoes" role="tabpanel">
-          <div class="mb-3">
-            {{ form.observacoes|as_crispy_field }}
+        <div id="documentos" class="tab-content hidden space-y-6">
+          <!-- Grupo: Documentos -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>form
+              Documentos
+            </h3>
+            
+            <div class="space-y-4">
+              {% for field in form %}
+                {% if field.name in 'comprovante_residencia,historico_escolar,outros_documentos' %}
+                <div>
+                  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ field.label }}
+                  </label>
+                  {{ field|as_crispy_field }}
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div id="observacoes" class="tab-content hidden space-y-6">
+          <!-- Grupo: Observações -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+              Observações
+            </h3>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+              </div>
+              {{ form.observacoes|as_crispy_field }}
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'secretaria:aluno-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
           {% if form.instance.pk %}Salvar Alterações{% else %}Criar Aluno{% endif %}
         </button>
-        <a href="{% url 'secretaria:aluno-list' %}" class="btn btn-secondary">Cancelar</a>
       </div>
     </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
   </div>
 </div>
+
+<!-- Script para alternar abas -->
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Remove estilos ativos de todas as abas
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-purple-50', 'text-purple-600', 'border-purple-500');
+        b.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      });
+      // Adiciona estilo ativo na aba clicada
+      btn.classList.add('bg-purple-50', 'text-purple-600', 'border-b-2', 'border-purple-500');
+      btn.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      
+      // Oculta todos os conteúdos
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+      // Mostra o conteúdo da aba clicada
+      document.getElementById(btn.dataset.target.substring(1)).classList.remove('hidden');
+    });
+  });
+</script>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+  }
+</style>
 {% endblock %}

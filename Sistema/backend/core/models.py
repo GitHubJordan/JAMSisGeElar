@@ -1,7 +1,24 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from pedagogico.models import AnoLetivo
+from django.conf import settings
 
 User = get_user_model()
+
+
+class Exercicio(models.Model):
+    ano = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT)
+    iniciado_em = models.DateTimeField(auto_now_add=True)
+    encerrado_em = models.DateTimeField(null=True, blank=True)
+    backup_path = models.CharField(max_length=500, blank=True)
+
+    class Meta:
+        ordering = ['-iniciado_em']
+
+    def __str__(self):
+        status = 'Aberto' if not self.encerrado_em else 'Encerrado'
+        return f"{self.ano.nome} ({status})"
+
 
 class ConfiguracaoInicial(models.Model):
     """
@@ -20,6 +37,12 @@ class ConfiguracaoInicial(models.Model):
     db_host = models.CharField('Host', max_length=100, default='localhost')
     db_port = models.PositiveIntegerField('Porta', default=5432)
     backup_local_path = models.CharField('Diretório de Backup', max_length=250)
+    backup_filename_pattern = models.CharField(
+        'Padrão do Nome do Backup',
+        max_length=100,
+        default='backup_%Y%m%d_%H%M%S.sql',
+        help_text="Padrão para o nome do arquivo de backup. Use strftime para datas. Exemplo: 'backup_%%Y%%m%%d_%%H%%M%%S.sql'"
+    )
     smtp_host = models.CharField('SMTP Host', max_length=100, blank=True)
     smtp_port = models.PositiveIntegerField('SMTP Port', blank=True, null=True)
     smtp_user = models.CharField('SMTP Usuário', max_length=100, blank=True)
@@ -98,3 +121,21 @@ class NotificationLog(models.Model):
 
     def __str__(self):
         return f'{self.data_envio:%d/%m/%Y %H:%M} → {self.destinatario} ({self.meio})'
+    
+
+class AccessLog(models.Model):
+    ACTIONS = [
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
+    ]
+    user      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    action    = models.CharField(max_length=6, choices=ACTIONS)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'Log de Acesso'
+        verbose_name_plural = 'Logs de Acesso'
+
+    def __str__(self):
+        return f"{self.user.username} – {self.get_action_display()} em {self.timestamp:%d/%m/%Y %H:%M}"

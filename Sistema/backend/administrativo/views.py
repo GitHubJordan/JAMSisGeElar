@@ -1,11 +1,12 @@
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from .models import Colaborador, Salario, BemPatrimonio, LancamentoContabil
-from .forms import ColaboradorForm, SalarioForm, BemPatrimonioForm, LancamentoContabilForm
+from .models import Colaborador, ContaContabil, Salario, BemPatrimonio, LancamentoContabil
+from .forms import ColaboradorForm, ContaContabilForm, SalarioForm, BemPatrimonioForm, LancamentoContabilForm
 from accounts.decorators import role_required
 from django.contrib import messages
 from django.template.loader import render_to_string
@@ -53,6 +54,11 @@ class ColaboradorUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'administrativo/colaborador_form.html'
     success_url = reverse_lazy('administrativo:colaborador-list')
 
+@method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
+def no_delete(request):
+    model = Colaborador
+    template_name = 'administrativo/colaborador_confirm_no_delete.html'
+    success_url = reverse_lazy('administrativo:colaborador-nodelete')
 
 @method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
 class ColaboradorDeleteView(LoginRequiredMixin, DeleteView):
@@ -62,9 +68,11 @@ class ColaboradorDeleteView(LoginRequiredMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         colaborador = self.get_object()
-        # Impede excluir colaborador que tenha salários vinculados (opcional)
+        # Impede excluir colaborador que tenha salários vinculados
         if Salario.objects.filter(colaborador=colaborador).exists():
-            raise PermissionDenied("Não é possível excluir colaborador com salários registrados.")
+            # raise PermissionDenied("Não é possível excluir colaborador com salários registrados.")
+            no_delete_url = reverse_lazy('administrativo:colaborador-nodelete')
+            return redirect(no_delete_url)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -101,26 +109,29 @@ class SalarioCreateView(LoginRequiredMixin, CreateView):
         descontos = safe_decimal(form.cleaned_data['descontos'])
         bonificacoes = safe_decimal(form.cleaned_data['bonificacoes'])
         base = colaborador.salario_base or Decimal('0')
+
+        carga_horaria = Decimal('8')
+        dias_uteis = Decimal('22')  # Considerando 22 dias úteis no mês
         
         # Cálculos com Decimal
-        valor_hora = base / Decimal('160')
+        valor_hora = base / (carga_horaria * dias_uteis)
         valor_horas_extras = horas_extras * valor_hora * Decimal('1.5')
         salario_bruto = base + valor_horas_extras + bonificacoes - descontos
         
-        inss = salario_bruto * Decimal('0.08')
-        irt = salario_bruto * Decimal('0.15')
-        salario_liquido = salario_bruto - inss - irt
+        # inss = salario_bruto * Decimal('0.08')
+        # irt = salario_bruto * Decimal('0.15')
+        salario_liquido = salario_bruto # - inss - irt
         
         # Arredondamento monetário
         salario_bruto = salario_bruto.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        inss = inss.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        irt = irt.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        # inss = inss.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        # irt = irt.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         salario_liquido = salario_liquido.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         
         # Atribuir valores ao formulário
         form.instance.salario_bruto = salario_bruto
-        form.instance.inss = inss
-        form.instance.irt = irt
+        form.instance.inss = 0 # inss
+        form.instance.irt = 0 # irt
         form.instance.salario_liquido = salario_liquido
         form.instance.processado_por = self.request.user
 
@@ -251,6 +262,37 @@ class BemPatrimonioDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'administrativo/patrimonio_confirm_delete.html'
     success_url = reverse_lazy('administrativo:patrimonio-list')
 
+# ------------------------------
+# CRUD de Plano de Contas
+# ------------------------------
+
+@method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
+class PlanoContasListView(LoginRequiredMixin, ListView):
+    model = ContaContabil
+    template_name = 'administrativo/plano_contas_list.html'
+    context_object_name = 'contas'
+    paginate_by = 20
+    ordering = ['codigo']
+
+@method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
+class PlanoContasCreateView(LoginRequiredMixin, CreateView):
+    model = ContaContabil
+    form_class = ContaContabilForm
+    template_name = 'administrativo/plano_contas_form.html'
+    success_url = reverse_lazy('administrativo:plano-contas-list')
+
+@method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
+class PlanoContasUpdateView(LoginRequiredMixin, UpdateView):
+    model = ContaContabil
+    form_class = ContaContabilForm
+    template_name = 'administrativo/plano_contas_form.html'
+    success_url = reverse_lazy('administrativo:plano-contas-list')
+
+@method_decorator(role_required('Admin', 'Diretor'), name='dispatch')
+class PlanoContasDeleteView(LoginRequiredMixin, DeleteView):
+    model = ContaContabil
+    template_name = 'administrativo/plano_contas_confirm_delete.html'
+    success_url = reverse_lazy('administrativo:plano-contas-list')
 
 # ------------------------------
 # CRUD de LancamentoContabil
@@ -293,3 +335,45 @@ class LancamentoContabilDeleteView(LoginRequiredMixin, DeleteView):
     model = LancamentoContabil
     template_name = 'administrativo/lancamento_confirm_delete.html'
     success_url = reverse_lazy('administrativo:lancamento-list')
+
+# ------------------------------
+# Relatório de Salários (RF-XX)
+# ------------------------------
+
+@login_required
+@role_required('Admin','Diretor')
+def salario_report(request):
+    ano = request.GET.get('ano')  # ou exercício atual via context processor
+    qs = Salario.objects.select_related('colaborador')
+    if ano:
+        qs = qs.filter(data_processamento__year=ano)
+    if request.GET.get('format') == 'excel':
+        import pandas as pd
+        data = []
+        for s in qs:
+            data.append({
+                'Colaborador': s.colaborador.nome,
+                'Mês Referência': s.mes_referencia.strftime('%m/%Y'),
+                'Salário Bruto': s.salario_bruto,
+                'INSS': s.inss,
+                'IRRF': s.irt,
+                'Salário Líquido': s.salario_liquido,
+            })
+        from io import BytesIO
+        buf = BytesIO()
+        with pd.ExcelWriter(buf, engine='openpyxl') as writer:
+            pd.DataFrame(data).to_excel(writer, index=False, sheet_name='Salários')
+        buf.seek(0)
+        resp = HttpResponse(
+            buf,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        resp['Content-Disposition'] = f'attachment; filename=salarios_{ano}.xlsx'
+        return resp
+    # PDF via WeasyPrint se formato pdf
+    if request.GET.get('format') == 'pdf':
+        html = render_to_string('administrativo/salario_report_pdf.html', {'salarios': qs, 'ano': ano})
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+        return HttpResponse(pdf, content_type='application/pdf')
+    return render(request, 'administrativo/salario_report.html', {'salarios': qs, 'ano': ano})
+

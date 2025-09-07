@@ -1,42 +1,398 @@
 {# Sistema/backend/dashboard/templates/dashboard/admin_dashboard.html #}
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-    {% include 'includes/sidebar.html' %}
-    <div class="flex-grow-1 p-4">
-        <h1>Dashboard do Admin</h1>
-        <div class="row mt-4">
-            <!-- Card: Total de Alunos -->
-            <div class="col-md-4 mb-3">
-                <div class="card text-white bg-primary h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Alunos Cadastrados</h5>
-                        <p class="card-text display-6">{{ alunos_total }}</p>
-                    </div>
-                </div>
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Painel de Controle Administrativo</h1>
+    <p class="text-gray-600">Visão estratégica e operacional do sistema</p>
+</div>
+
+<!-- Cards de Métricas -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Card: Total de Alunos -->
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-200">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-gray-600 text-sm mb-1">Alunos Cadastrados</h3>
+                <p class="text-3xl font-bold text-blue-800">{{ alunos_total }}</p>
             </div>
-            <!-- Card: Faturas Pendentes -->
-            <div class="col-md-4 mb-3">
-                <div class="card text-white bg-warning h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Faturas Pendentes</h5>
-                        <p class="card-text display-6">{{ faturas_pendentes }}</p>
-                    </div>
-                </div>
+            <div class="bg-blue-500/20 p-3 rounded-xl">
+                <i class="fas fa-user-graduate text-blue-600 text-xl"></i>
             </div>
-            <!-- Card: Colaboradores Ativos -->
-            <div class="col-md-4 mb-3">
-                <div class="card text-white bg-success h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Colaboradores Ativos</h5>
-                        <p class="card-text display-6">{{ colaboradores_ativos }}</p>
-                    </div>
-                </div>
+        </div>
+        <div class="mt-4">
+            {% if crescimento_alunos >= 0 %}
+                <p class="text-xs text-green-600 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i> {{ crescimento_alunos|floatformat:1 }}% este mês
+                </p>
+            {% else %}
+                <p class="text-xs text-red-600 flex items-center">
+                    <i class="fas fa-arrow-down mr-1"></i> {{ crescimento_alunos|floatformat:1 }}% este mês
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Card: Saúde Financeira -->
+    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-gray-600 text-sm mb-1">Saúde Financeira</h3>
+                <p class="text-3xl font-bold text-yellow-800">{{ taxa_pagamentos|floatformat:1 }}%</p>
             </div>
+            <div class="bg-yellow-500/20 p-3 rounded-xl">
+                <i class="fas fa-file-invoice-dollar text-yellow-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <p class="text-xs text-yellow-600 flex items-center">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ faturas_vencidas }} vencidas
+            </p>
+        </div>
+    </div>
+    
+    <!-- Card: Recursos Humanos -->
+    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border border-green-200">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-gray-600 text-sm mb-1">Colaboradores</h3>
+                <p class="text-3xl font-bold text-green-800">{{ colaboradores_ativos }}</p>
+            </div>
+            <div class="bg-green-500/20 p-3 rounded-xl">
+                <i class="fas fa-users text-green-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <p class="text-xs text-green-600 flex items-center">
+                <i class="fas fa-user-plus mr-1"></i> {{ novos_colaboradores }} novos
+            </p>
+        </div>
+    </div>
+    
+    <!-- Card: Receita Mensal -->
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-200">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-gray-600 text-sm mb-1">Receita Mensal</h3>
+                <p class="text-3xl font-bold text-purple-800">AOA {{ receita_mensal }}</p>
+            </div>
+            <div class="bg-purple-500/20 p-3 rounded-xl">
+                <i class="fas fa-coins text-purple-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% if crescimento_receita >= 0 %}
+                <p class="text-xs text-green-600 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i> {{ crescimento_receita|floatformat:1 }}% vs mês anterior
+                </p>
+            {% else %}
+                <p class="text-xs text-red-600 flex items-center">
+                    <i class="fas fa-arrow-down mr-1"></i> {{ crescimento_receita|floatformat:1 }}% vs mês anterior
+                </p>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Gráficos e Tabelas -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Gráfico de Evolução de Matrículas -->
+    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-200">
+            <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+            Evolução de Matrículas
+        </h3>
+        <div class="h-64">receita_mensal
+            <canvas id="matriculasChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Gráfico de Desempenho Financeiro -->
+    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-200">
+            <i class="fas fa-money-bill-wave text-green-500 mr-2"></i>
+            Desempenho Financeiro
+        </h3>
+        <div class="h-64">
+            <canvas id="financeiroChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tabelas e Listas -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Tabela de Alertas Críticos -->
+    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-200">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            Alertas Críticos
+        </h3>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Tipo</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Descrição</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Prioridade</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-200">
+                    {% if faturas_vencidas > 0 %}
+                    <tr class="hover:bg-gray-600 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-100">Financeiro</td>
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ faturas_vencidas }} faturas vencidas</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Alta</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if salarios_pendentes > 0 %}
+                    <tr class="hover:bg-gray-600 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-100">RH</td>
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ salarios_pendentes }} salários pendentes</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Média</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if notas_pendentes > 0 %}
+                    <tr class="hover:bg-gray-600 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-100">Acadêmico</td>
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ notas_pendentes }} notas pendentes</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">Média</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if pre_matriculas_pendentes > 0 %}
+                    <tr class="hover:bg-gray-600 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-100">Secretaria</td>
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ pre_matriculas_pendentes }} pré-matrículas pendentes</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Baixa</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if alertas_vazios %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-4 text-center text-gray-500">Nenhum alerta crítico no momento</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4 text-right">
+            <a href="#" class="px-4 py-2 bg-red-500 hover:bg-red-700 rounded-lg text-gray-200 transition-colors text-sm">
+                Ver detalhes <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Tabela de Últimas Atividades -->
+    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-200">
+            <i class="fas fa-history text-yellow-500 mr-2"></i>
+            Atividades Recentes
+        </h3>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Data</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Ação</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Usuário</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-200">
+                    {% for atividade in atividades_recentes %}
+                    <tr class="hover:bg-gray-600 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ atividade.data|date:"d/m H:i" }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-100">{{ atividade.descricao|truncatechars:40 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-200">{{ atividade.usuario.username }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-4 text-center text-gray-500">Nenhuma atividade recente</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4 text-right">
+            <a href="#" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg text-gray-200 transition-colors text-sm">
+                Ver histórico completo <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="bg-gray-300 rounded-2xl p-6 shadow-lg border border-gray-200 mb-8">
+    <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+        <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+        Ações Rápidas
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {% if request.user.is_superuser %}
+        <a href="{% url 'admin:index' %}" class="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg flex flex-col items-center transition-colors">
+            <div class="bg-blue-100 p-3 rounded-full mb-2">
+            <i class="fas fa-cogs text-blue-600 text-xl"></i>
+            </div>
+            <h4 class="font-medium text-gray-900 text-center">Admin Django</h4>
+        </a>
+        {% else %}
+        <a href="{% url 'administrativo:salario-create' %}" class="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg flex flex-col items-center transition-colors">
+            <div class="bg-blue-100 p-3 rounded-full mb-2">
+            <i class="fas fa-money-check-alt text-blue-600 text-xl"></i>
+            </div>
+            <h4 class="font-medium text-gray-900 text-center">Processar Salário</h4>
+        </a>
+        {% endif %}
+        
+        <a href="{% url 'secretaria:aluno-create' %}" class="p-4 bg-green-50 hover:bg-green-100 rounded-lg flex flex-col items-center transition-colors">
+            <div class="bg-green-100 p-3 rounded-full mb-2">
+                <i class="fas fa-user-plus text-green-600 text-xl"></i>
+            </div>
+            <h4 class="font-medium text-gray-900 text-center">Novo Aluno</h4>
+        </a>
+        
+        <a href="{% url 'administrativo:colaborador-create' %}" class="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg flex flex-col items-center transition-colors">
+            <div class="bg-purple-100 p-3 rounded-full mb-2">
+                <i class="fas fa-user-tie text-purple-600 text-xl"></i>
+            </div>
+            <h4 class="font-medium text-gray-900 text-center">Novo Colaborador</h4>
+        </a>
+        
+        <a href="{% url 'secretaria:fatura-create' %}" class="p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg flex flex-col items-center transition-colors">
+            <div class="bg-yellow-100 p-3 rounded-full mb-2">
+                <i class="fas fa-file-invoice-dollar text-yellow-600 text-xl"></i>
+            </div>
+            <h4 class="font-medium text-gray-900 text-center">Emitir Fatura</h4>
+        </a>
+    </div>
+</div>
+
+{% block extra_js %}
+<!-- Scripts para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico de Evolução de Matrículas
+        const ctxMat = document.getElementById('matriculasChart').getContext('2d');
+        
+        new Chart(ctxMat, {
+            type: 'line',
+            data: {
+                labels: {{ matriculas_labels|safe }},
+                datasets: [{
+                    label: 'Matrículas',
+                    data: {{ matriculas_data|safe }},
+                    fill: true,
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgb(59, 130, 246)',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 5,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#374151'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de Desempenho Financeiro
+        const ctxFin = document.getElementById('financeiroChart').getContext('2d');
+        
+        new Chart(ctxFin, {
+            type: 'bar',
+            data: {
+                labels: ['Receitas', 'Despesas', 'Resultado'],
+                datasets: [{
+                    label: 'Valores (AOA)',
+                    data: {{ financeiro_data|safe }},
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(59, 130, 246, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(16, 185, 129)',
+                        'rgb(239, 68, 68)',
+                        'rgb(59, 130, 246)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

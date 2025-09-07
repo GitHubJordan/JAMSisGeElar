@@ -208,14 +208,54 @@ class BemPatrimonio(models.Model):
         
         return self.valor_contabil_liquido
 
+class ContaContabil(models.Model):
+    """
+    Plano de Contas: código e descrição de cada conta contábil.
+    """
+    TIPO_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('PASSIVO', 'Passivo'),
+        ('RECEITA', 'Receita'),
+        ('DESPESA', 'Despesa'),
+    ]
+    POSICAO_CHOICES = [
+        ('DEBITO', 'Débito (+)'),
+        ('CREDITO', 'Crédito (+)'),
+    ]
+
+    codigo = models.CharField('Código', max_length=20, unique=True)
+    nome = models.CharField('Nome da Conta', max_length=100)
+    tipo = models.CharField('Tipo', max_length=10, choices=TIPO_CHOICES)
+    posicao = models.CharField('Posição', max_length=10, choices=POSICAO_CHOICES)
+
+    class Meta:
+        verbose_name = 'Conta Contábil'
+        verbose_name_plural = 'Plano de Contas'
+        ordering = ['codigo']
+
+    def __str__(self):
+        return f'{self.codigo} – {self.nome} ({self.get_tipo_display()})'
+
 
 class LancamentoContabil(models.Model):
     """
     Lançamento contábil (partidas dobradas).
     """
     data_lancamento = models.DateField('Data do Lançamento')
-    conta_debito = models.CharField('Conta Débito', max_length=100)
-    conta_credito = models.CharField('Conta Crédito', max_length=100)
+    
+    conta_debito = models.ForeignKey(
+        ContaContabil,
+        on_delete=models.PROTECT,
+        related_name='lancamentos_debito',
+        verbose_name='Conta Débito'
+    )
+    conta_credito = models.ForeignKey(
+        ContaContabil,
+        on_delete=models.PROTECT,
+        related_name='lancamentos_credito',
+        verbose_name='Conta Crédito'
+    )
+    
     valor = models.DecimalField('Valor', max_digits=12, decimal_places=2)
     descricao = models.TextField('Descrição')
     lancado_por = models.ForeignKey(

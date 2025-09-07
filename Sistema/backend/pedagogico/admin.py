@@ -1,11 +1,30 @@
 from django.contrib import admin
-from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim
+from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim, AnoLetivo, Calendario
+
+
+@admin.register(AnoLetivo)
+class AnoLetivoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'ativo')
+    list_filter = ('ativo',)
+    search_fields = ('nome',)
+
+@admin.register(Calendario)
+class CalendarioAdmin(admin.ModelAdmin):
+    list_display = ('data', 'descricao', 'titulo')
+    list_filter = ('titulo',)
+    search_fields = ('descricao',)
+    date_hierarchy = 'data'
 
 @admin.register(Turma)
 class TurmaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'nivel', 'turno', 'professor_responsavel')
     list_filter = ('nivel', 'turno')
     search_fields = ('nome', 'professor_responsavel')
+
+    def save_model(self, request, obj, form, change):
+        if not obj.ano_letivo: # Se o campo não foi preenchido no formulário
+            obj.ano_letivo = AnoLetivo.objects.filter(ativo=True).first()
+        super().save_model(request, obj, form, change)
 
 @admin.register(Disciplina)
 class DisciplinaAdmin(admin.ModelAdmin):

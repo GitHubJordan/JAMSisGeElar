@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
 class Encarregado(models.Model):
@@ -51,6 +52,11 @@ class Aluno(models.Model):
     STATUS_CHOICES = [
         ('ATIVO', 'ATIVO'),
         ('INATIVO', 'INATIVO'),
+        ('SUSPENSO', 'Suspenso'),
+        ('TRANCADO', 'Trancado'),
+        ('FORMADO', 'Formado'),
+        ('TRANSFERIDO', 'Transferido'),
+        ('DESISTENTE', 'Desistente'),
     ]
 
     nome = models.CharField('Nome', max_length=150)
@@ -79,7 +85,7 @@ class Aluno(models.Model):
     )
     status = models.CharField(
         'Status',
-        max_length=10,
+        max_length=12,
         choices=STATUS_CHOICES,
         default='ATIVO'
     )
@@ -94,6 +100,38 @@ class Aluno(models.Model):
     def __str__(self):
         return f'{self.matricula} - {self.nome}'
 
+class Servico(models.Model):
+    codigo     = models.CharField(max_length=10, unique=True)
+    descricao  = models.CharField(max_length=100)
+    preco      = models.DecimalField(max_digits=10, decimal_places=2)
+    ativo      = models.BooleanField(default=True)
+    criado_em  = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['codigo']
+        verbose_name = 'Serviço'
+        verbose_name_plural = 'Serviços'
+
+    def __str__(self):
+        return f"{self.codigo} – {self.descricao} (AOA {self.preco})"
+
+class FaturaServico(models.Model):
+    fatura  = models.ForeignKey('Fatura', on_delete=models.CASCADE)
+    servico = models.ForeignKey(Servico, on_delete=models.PROTECT)
+    quantidade = models.PositiveIntegerField(default=1)
+    valor_unitario = models.DecimalField(
+        'Valor Unitário',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    class Meta:
+        unique_together = ('fatura','servico')
+
+    def subtotal(self):
+        return self.servico.preco * self.quantidade
 
 class Fatura(models.Model):
     """
@@ -119,6 +157,7 @@ class Fatura(models.Model):
         verbose_name='Aluno'
     )
     tipo = models.CharField('Tipo', max_length=15, choices=TIPO_CHOICES)
+    itens = models.ManyToManyField(Servico, through=FaturaServico)
     valor_original = models.DecimalField('Valor Original', max_digits=12, decimal_places=2)
     valor_atual = models.DecimalField('Valor Atual', max_digits=12, decimal_places=2, blank=True, null=True)
     data_emissao = models.DateField('Data de Emissão')
@@ -174,6 +213,21 @@ class Recibo(models.Model):
     def __str__(self):
         return f'{self.numero_recibo} | {self.fatura.numero}'
 
+class PreMatricula(models.Model):
+    aluno      = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    curso      = models.ForeignKey('pedagogico.Curso', on_delete=models.PROTECT)
+    data_solic = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [('PENDENTE','Pendente'),('APROVADA','Aprovada'),('RECUSADA','Recusada')]
+    status     = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
+
+    class Meta:
+        ordering = ['-data_solic']
+        verbose_name = 'Pré‑Matrícula'
+        verbose_name_plural = 'Pré‑Matrículas'
+
+    def __str__(self):
+        return f"{self.aluno} → {self.curso} [{self.status}]"
+
 
 class ContaCorrente(models.Model):
     """
@@ -208,3 +262,4 @@ class ContaCorrente(models.Model):
         self.total_credito = sum(recibos)
         self.saldo = self.total_debito - self.total_credito
         self.save()
+

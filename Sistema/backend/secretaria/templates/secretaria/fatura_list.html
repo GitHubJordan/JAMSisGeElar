@@ -1,93 +1,134 @@
-{# Sistema/backend/secretaria/templates/secretaria/fatura_list.html #}
 {% extends 'base.html' %}
 {% block title %}Faturas{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Faturas</h2>
-      <a href="{% url 'secretaria:fatura-create' %}" class="btn btn-success">+ Nova Fatura</a>
+<div class="space-y-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Faturas</h2>
+      <p class="text-sm text-gray-500">Emita, consulte e filtre cobranças.</p>
+    </div>
+    <a href="{% url 'secretaria:fatura-create' %}"
+       class="inline-flex items-center bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-600 hover:to-yellow-600 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+      <i class="fas fa-plus mr-2"></i> Nova Fatura
+    </a>
+  </div>
+
+  <!-- Filtros (em bloco único, full width) -->
+  <form method="get" class="flex flex-col md:flex-row items-end space-y-4 md:space-y-0 md:space-x-4 w-full">
+    <div class="flex-1 space-y-1">
+      <label for="aluno" class="block text-sm font-medium text-gray-700">Aluno</label>
+      <input type="text" id="aluno" name="aluno" value="{{ request.GET.aluno }}"
+             placeholder="Nome ou matrícula"
+             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition" />
+    </div>
+    <div class="w-40 space-y-1">
+      <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+      <select id="status" name="status"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">
+        <option value="">Todos</option>
+        <option value="PENDENTE" {% if request.GET.status == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+        <option value="VENCIDO"  {% if request.GET.status == 'VENCIDO'  %}selected{% endif %}>Vencido</option>
+        <option value="PAGO"     {% if request.GET.status == 'PAGO'     %}selected{% endif %}>Pago</option>
+      </select>
+    </div>
+    <div>
+      <button type="submit"
+              class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition">
+        Filtrar
+      </button>
     </div>
 
-    <!-- Filtro simples por Aluno ou Status (opcional) -->
-    <form method="get" class="row g-3 mb-4">
-      <div class="col-md-4">
-        <input type="text" name="aluno" value="{{ request.GET.aluno }}" class="form-control" placeholder="Buscar por Aluno">
-      </div>
-      <div class="col-md-3">
-        <select name="status" class="form-select">
-          <option value="">Todos os Status</option>
-          <option value="PENDENTE" {% if request.GET.status == "PENDENTE" %}selected{% endif %}>PENDENTE</option>
-          <option value="VENCIDO" {% if request.GET.status == "VENCIDO" %}selected{% endif %}>VENCIDO</option>
-          <option value="PAGO" {% if request.GET.status == "PAGO" %}selected{% endif %}>PAGO</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-      </div>
-    </form>
+    <div>
+      <a href="{% url 'secretaria:fatura-report' %}"
+         class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-500 hover:from-gray-800 hover:to-gray-600 text-white rounded-lg shadow-lg transition-all">
+        <i class="fas fa-file-alt mr-2"></i> Relatório
+      </a>
+    </div>
+  </form>
 
-    <table class="table table-striped">
-      <thead>
+  <!-- Tabela dentro de card -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden w-full">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
         <tr>
-          <th>Nº</th>
-          <th>Aluno</th>
-          <th>Valor (AKZ)</th>
-          <th>Emissão</th>
-          <th>Vencimento</th>
-          <th>Status</th>
-          <th>Ações</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Nº</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Aluno</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-200 uppercase tracking-wider">Valor</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Emissão</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Vencimento</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="bg-white divide-y divide-gray-100">
         {% for f in faturas %}
-        <tr>
-          <td>{{ f.numero }}</td>
-          <td>{{ f.aluno.nome }}</td>
-          <td>{{ f.valor_atual }}</td>
-          <td>{{ f.data_emissao|date:"d/m/Y" }}</td>
-          <td>{{ f.data_vencimento|date:"d/m/Y" }}</td>
-          <td>{{ f.status }}</td>
-          <td>
-            <a href="{% url 'secretaria:fatura-edit' f.pk %}" class="btn btn-sm btn-primary" {% if f.status == 'PAGO' %}disabled{% endif %}>🖉</a>
-            <a href="{% url 'secretaria:fatura-delete' f.pk %}" class="btn btn-sm btn-danger" {% if f.status != 'PENDENTE' %}disabled{% endif %}>🗑</a>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ f.numero }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ f.aluno.nome }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">AOA {{ f.valor_original|floatformat:2 }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ f.data_emissao|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ f.data_vencimento|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            {% if f.status == 'PENDENTE' %}
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            {% elif f.status == 'VENCIDO' %}
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Vencido</span>
+            {% else %}
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Pago</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm flex justify-center space-x-4">
+            <a href="{% url 'secretaria:fatura-edit' f.pk %}"
+               class="text-blue-600 hover:text-blue-800 transition-colors {% if f.status == 'PAGO' %}opacity-50 cursor-not-allowed{% endif %}"
+               {% if f.status == 'PAGO' %}aria-disabled="true"{% endif %} title="Editar">
+              <i class="fas fa-edit text-lg"></i>
+            </a>
+            <a href="{% url 'secretaria:fatura-delete' f.pk %}"
+               class="text-red-600 hover:text-red-800 transition-colors {% if f.status != 'PENDENTE' %}opacity-50 cursor-not-allowed{% endif %}"
+               {% if f.status != 'PENDENTE' %}aria-disabled="true"{% endif %} title="Excluir">
+              <i class="fas fa-trash-alt text-lg"></i>
+            </a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="7" class="text-center">Nenhuma fatura encontrada.</td>
+          <td colspan="7" class="px-6 py-4 text-center text-gray-500">Nenhuma fatura encontrada.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-
-    {% if is_paginated %}
-      <nav>
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% else %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
   </div>
+
+  <!-- Paginação full width abaixo da tabela -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4 w-full">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.aluno %}&aluno={{ request.GET.aluno }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-l-md">Anterior</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-l-md cursor-default">Anterior</span>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="px-4 py-2 border-t border-b border-indigo-500 bg-indigo-50 text-sm text-indigo-600">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}{% if request.GET.aluno %}&aluno={{ request.GET.aluno }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"
+           class="px-4 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.aluno %}&aluno={{ request.GET.aluno }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-r-md">Próxima</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-r-md cursor-default">Próxima</span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

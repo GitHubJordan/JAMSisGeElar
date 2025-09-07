@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Pré‑Matrículas Pendentes - Sistema Escolar{% endblock %}
+{% block content %}
+<div class="space-y-6 p-6">
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Pré‑Matrículas Pendentes</h2>
+      <p class="text-sm text-gray-500">Gerencie as pré-matrículas aguardando aprovação</p>
+    </div>
+    <div class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+      {{ pendentes|length }} aguardando
+    </div>
+  </div>
+
+  <!-- Tabela dentro de card -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Aluno</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Curso</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Solicitação</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for pre in pendentes %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pre.aluno }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ pre.curso }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ pre.data_solic|date:"d/m/Y H:i" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm flex justify-center space-x-2">
+            <a href="{% url 'pedagogico:confirmar-prematricula' pre.pk %}"
+               class="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm transition">
+              <i class="fas fa-check-circle mr-1"></i> Aprovar
+            </a>
+            <a href="{% url 'pedagogico:confirmar-prematricula' pre.pk %}?acao=recusar"
+               class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm transition">
+              <i class="fas fa-times-circle mr-1"></i> Recusar
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+            <i class="fas fa-inbox text-3xl text-gray-300 mb-2"></i>
+            <p>Não há pré‑matrículas pendentes.</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4 w-full">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-l-md">Anterior</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-l-md cursor-default">Anterior</span>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="px-4 py-2 border-t border-b border-indigo-500 bg-indigo-50 text-sm text-indigo-600">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}"
+           class="px-4 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-r-md">Próxima</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-r-md cursor-default">Próxima</span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Conta - Sistema Escolar{% else %}Nova Conta - Sistema Escolar{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-green-600 mt-2">
+        {% if form.instance.pk %}Editar Conta{% else %}Nova Conta Contábil{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as informações da conta
+        {% else %}
+          Preencha os campos para registrar uma nova conta
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações da Conta -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Informações da Conta
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- Campo: Código -->
+            <div>
+              <label for="{{ form.codigo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Código *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                </div>
+                {{ form.codigo|as_crispy_field }}
+                {% if form.codigo.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.codigo.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Nome -->
+            <div>
+              <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                {{ form.nome|as_crispy_field }}
+                {% if form.nome.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.nome.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Campo: Tipo -->
+            <div>
+              <label for="{{ form.tipo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <!-- Ícone ajustado para categoria/classificação -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+                {{ form.tipo|as_crispy_field }}
+                {% if form.tipo.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.tipo.errors }}
+                    <p class="text-xs text-gray-500 mt-1">Selecione o tipo de conta (Ativo, Passivo, Receita, Despesa)</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Campo: Posição -->
+            <div>
+              <label for="{{ form.posicao.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Posição *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <!-- Ícone ajustado para balança contábil -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </div>
+                {{ form.posicao|as_crispy_field }}
+                {% if form.posicao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.posicao.errors }}
+                    <p class="text-xs text-gray-500 mt-1">Selecione a posição da conta (Débito ou Crédito)</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'administrativo:plano-contas-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-indigo-500 hover:from-green-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Conta{% endif %}
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  }
+</style>
+{% endblock %}

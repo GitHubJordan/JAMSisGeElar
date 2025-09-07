@@ -3,79 +3,177 @@
 {% block title %}Salários{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Salários</h2>
-      <a href="{% url 'administrativo:salario-create' %}" class="btn btn-success">+ Novo Salário</a>
+<div class="space-y-6">
+
+  <!-- Cabeçalho da Página -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Salários</h2>
+      <p class="text-sm text-gray-500">Listagem de todos os salários processados.</p>
     </div>
-    <table class="table table-striped">
-      <thead>
+    <a href="{% url 'administrativo:salario-create' %}"
+       class="inline-flex items-center bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+      <i class="fas fa-plus mr-2"></i> Novo Salário
+    </a>
+  </div>
+
+  <!-- Filtros (Colaborador e Mês de Referência) -->
+  <form method="get" class="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-6">
+    <!-- Filtro por Colaborador -->
+    <div class="flex flex-col">
+      <label for="colaborador" class="text-sm font-medium text-gray-700">Colaborador</label>
+      <input type="text" name="colaborador" id="colaborador" placeholder="Nome do colaborador"
+             value="{{ request.GET.colaborador }}"
+             class="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition w-64" />
+    </div>
+
+    <!-- Filtro por Mês de Referência -->
+    <div class="flex flex-col">
+      <label for="mes_referencia" class="text-sm font-medium text-gray-700">Mês/Referência</label>
+      <input type="month" name="mes_referencia" id="mes_referencia" value="{{ request.GET.mes_referencia }}"
+             class="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" />
+    </div>
+
+    <!-- Botão Filtrar -->
+    <button type="submit"
+            class="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition">
+      <i class="fas fa-filter mr-2"></i> Filtrar
+    </button>
+  </form>
+
+  <!-- Tabela dentro de Card -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <!-- Cabeçalho da Tabela -->
+      <thead class="bg-gray-800">
         <tr>
-          <th>Colaborador</th>
-          <th>Mês/Referencia</th>
-          <th>Salário Bruto</th>
-          <th>INSS</th>
-          <th>IRT</th>
-          <th>Salário Líquido</th>
-          <th>Recibo</th>
-          <th>Ações</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Colaborador</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Mês/Referência</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Salário Bruto</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">INSS</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">IRT</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Salário Líquido</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Recibo</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
         </tr>
       </thead>
-      <tbody>
+
+      <!-- Corpo da Tabela -->
+      <tbody class="bg-white divide-y divide-gray-100">
         {% for s in salarios %}
-        <tr>
-          <td>{{ s.colaborador.nome }}</td>
-          <td>{{ s.mes_referencia }}</td>
-          <td>{{ s.salario_bruto|floatformat:2 }}</td>
-          <td>{{ s.inss|floatformat:2 }}</td>
-          <td>{{ s.irt|floatformat:2 }}</td>
-          <td>{{ s.salario_liquido|floatformat:2 }}</td>
-          <td>
+        <tr class="hover:bg-gray-50">
+          <!-- Colaborador -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            {{ s.colaborador.nome }}
+          </td>
+
+          <!-- Mês/Referência formatado -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            {{ s.mes_referencia|slice:":4" }}-{{ s.mes_referencia|slice:"5:" }}
+          </td>
+
+          <!-- Salário Bruto -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            AOA {{ s.salario_bruto|floatformat:2 }}
+          </td>
+
+          <!-- INSS -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            AOA {{ s.inss|floatformat:2 }}
+          </td>
+
+          <!-- IRT -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            AOA {{ s.irt|floatformat:2 }}
+          </td>
+
+          <!-- Salário Líquido -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            AOA {{ s.salario_liquido|floatformat:2 }}
+          </td>
+
+          <!-- Recibo (PDF) -->
+          <td class="px-6 py-4 whitespace-nowrap text-center">
             {% if s.arquivo_holerite %}
-              <a href="{{ s.arquivo_holerite.url }}" class="btn btn-sm btn-success" target="_blank">Ver PDF</a>
+              <a href="{{ s.arquivo_holerite.url }}" target="_blank"
+                 class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition">
+                <i class="fas fa-file-pdf mr-1"></i> Ver PDF
+              </a>
             {% else %}
-              —
+              <span class="text-gray-400">—</span>
             {% endif %}
           </td>
-          <td>
-            <a href="{% url 'administrativo:salario-edit' s.pk %}" class="btn btn-sm btn-primary">🖉</a>
-            <a href="{% url 'administrativo:salario-delete' s.pk %}" class="btn btn-sm btn-danger">🗑</a>
+
+          <!-- Ações (Editar / Excluir) -->
+          <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700 flex justify-center space-x-4">
+            <a href="{% url 'administrativo:salario-edit' s.pk %}"
+               class="text-blue-600 hover:text-blue-800 transition-colors"
+               title="Editar">
+              <i class="fas fa-edit text-lg"></i>
+            </a>
+            <a href="{% url 'administrativo:salario-delete' s.pk %}"
+               class="text-red-600 hover:text-red-800 transition-colors"
+               title="Excluir">
+              <i class="fas fa-trash-alt text-lg"></i>
+            </a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center">Nenhum salário registrado.</td>
+          <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+            Nenhum salário registrado.
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% if is_paginated %}
-      <nav>
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% else %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
   </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md" aria-label="Paginação">
+      {% comment %}Preserva filtros na querystring{% endcomment %}
+      {% with qcol=request.GET.colaborador qmes=request.GET.mes_referencia %}
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if qcol %}&colaborador={{ qcol }}{% endif %}{% if qmes %}&mes_referencia={{ qmes }}{% endif %}"
+           class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Anterior
+        </a>
+      {% else %}
+        <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+          Anterior
+        </span>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span aria-current="page"
+                class="relative z-10 inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+            {{ num }}
+          </span>
+        {% else %}
+          <a href="?page={{ num }}{% if qcol %}&colaborador={{ qcol }}{% endif %}{% if qmes %}&mes_referencia={{ qmes }}{% endif %}"
+             class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            {{ num }}
+          </a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if qcol %}&colaborador={{ qcol }}{% endif %}{% if qmes %}&mes_referencia={{ qmes }}{% endif %}"
+           class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Próxima
+        </a>
+      {% else %}
+        <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+          Próxima
+        </span>
+      {% endif %}
+      {% endwith %}
+    </nav>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

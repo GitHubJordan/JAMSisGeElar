@@ -1,26 +1,453 @@
-{# Sistema/backend/secretaria/templates/secretaria/fatura_form.html #}
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
   {% if form.instance.pk %}Editar Fatura{% else %}Nova Fatura{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4" style="max-width: 600px;">
-    <h2 class="mb-4">{% if form.instance.pk %}Editar Fatura{% else %}Nova Fatura{% endif %}</h2>
-    <form method="post">
-      {% csrf_token %}
-      {{ form|crispy }}
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
-          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Fatura{% endif %}
-        </button>
-        <a href="{% url 'secretaria:fatura-list' %}" class="btn btn-secondary">Cancelar</a>
+<div class="min-h-screen bg-gradient-to-br from-yellow-20 to-yellow-50 py-8">
+  <div class="container mx-auto px-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+      <!-- Cabeçalho institucional -->
+      <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 py-6 px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="flex items-center">
+            <div class="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mr-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-white">Sistema de Gestão Escolar</h1>
+              <h2 class="text-xl font-semibold text-yellow-100 mt-1">
+                {% if form.instance.pk %}Editar Fatura{% else %}Nova Fatura{% endif %}
+              </h2>
+            </div>
+          </div>
+          <div class="mt-4 md:mt-0">
+            <p class="text-yellow-100 text-sm">
+              {% if form.instance.pk %}Atualize os dados desta fatura{% else %}Preencha os campos para emitir uma nova fatura{% endif %}
+            </p>
+          </div>
+        </div>
       </div>
-    </form>
+
+      <div class="p-8">
+        {% if form.non_field_errors %}
+          <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6 flex items-start">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Erro no formulário</h3>
+              <div class="mt-2 text-sm text-red-700">
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="space-y-8">
+            <!-- Informações da Fatura -->
+            <div class="bg-yellow-50 rounded-xl p-6 border border-yellow-100">
+              <div class="flex items-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-800">Informações da Fatura</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for field in form %}
+                  {% if field.name not in 'observacoes valor_original valor_atual' %}
+                  <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                      {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    <div class="relative">
+                      {{ field }}
+                      {% if field.errors %}
+                        <div class="mt-1 text-sm text-red-600">{{ field.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Valor Original Nativo -->
+            <div id="native-valor-group" class="bg-yellow-50 rounded-xl p-6 border border-yellow-100">
+              <div class="flex items-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-800">Valor da Fatura</h3>
+              </div>
+              {{ form.valor_original|as_crispy_field }}
+            </div>
+
+            <!-- Itens de Serviço para tipo OUTRO -->
+            <div id="service-group" class="bg-yellow-50 rounded-xl p-6 border border-yellow-100" style="display:none;">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  <h3 class="text-lg font-medium text-gray-800">Itens de Serviço</h3>
+                </div>
+                <button type="button" id="add-service"
+                  class="inline-flex items-center px-3 py-1.5 border border-yellow-500 rounded-lg text-yellow-700 bg-white hover:bg-yellow-50 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Adicionar Serviço
+                </button>
+              </div>
+              
+              {{ servico_formset.management_form }}
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-yellow-200">
+                  <thead class="bg-yellow-100">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">Serviço</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">Quantidade</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">Valor Unitário</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">Subtotal</th>
+                      <th class="px-4 py-2 text-right text-xs font-medium text-yellow-800 uppercase tracking-wider">Remover</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-yellow-100">
+                    {% for sf in servico_formset.forms %}
+                    <tr class="hover:bg-yellow-50">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <select name="{{ sf.prefix }}-servico" id="id_{{ sf.prefix }}-servico"
+                                class="servico-select bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full"
+                                data-preco="{{ sf.instance.servico.preco|default_if_none:'0' }}">
+                          <option value="">---------</option>
+                          {% for serv in servicos_ativos %}
+                            <option value="{{ serv.pk }}"
+                                    data-preco="{{ serv.preco }}"
+                              {% if serv.pk == sf.instance.servico_id %}selected{% endif %}>
+                              {{ serv.descricao }} — AOA {{ serv.preco|floatformat:2 }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">{{ sf.quantidade }}</td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <input type="text"
+                               name="{{ sf.prefix }}-valor_unitario"
+                               id="id_{{ sf.prefix }}-valor_unitario"
+                               class="bg-gray-50 border border-gray-200 rounded px-2 py-1 w-24 text-right valor-unitario"
+                               value="{{ sf.instance.servico.preco|default_if_none:'0.00' }}"
+                               readonly>
+                      </td>
+                      <script>
+                        
+                      </script>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-center subtotal text-yellow-700">0.00</td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                        <button type="button" class="remove-service inline-flex items-center p-1 bg-red-100 rounded-full hover:bg-red-200">
+                          <i class="fas fa-trash-alt text-red-600"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Observações -->
+            <div class="bg-yellow-50 rounded-xl p-6 border border-yellow-100">
+              <div class="flex items-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-800">Observações</h3>
+              </div>
+              {{ form.observacoes }}
+            </div>
+          </div>
+
+          <!-- Botões de ação -->
+          <div class="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 mt-10 pt-6 border-t border-gray-100">
+            <a href="{% url 'secretaria:fatura-list' %}"
+               class="w-full sm:w-auto px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Cancelar
+            </a>
+            <button type="submit"
+                    class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white rounded-lg shadow-lg flex items-center justify-center transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {% if form.instance.pk %}Salvar Alterações{% else %}Emitir Fatura{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Rodapé institucional -->
+      <div class="bg-yellow-50 py-4 px-8 text-center text-xs text-yellow-700 border-t border-yellow-100">
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+  // Toggle entre valor nativo e serviços
+  const tipoSelect    = document.getElementById('id_tipo');
+  const nativeGroup   = document.getElementById('native-valor-group');
+  const serviceGroup  = document.getElementById('service-group');
+  
+  function toggleGroups() {
+    if (tipoSelect.value === 'OUTRO') {
+      nativeGroup.style.display  = 'none';
+      serviceGroup.style.display = 'block';
+    } else {
+      nativeGroup.style.display  = 'block';
+      serviceGroup.style.display = 'none';
+    }
+  }
+  
+  tipoSelect.addEventListener('change', toggleGroups);
+  document.addEventListener('DOMContentLoaded', toggleGroups);
+
+  // Função para adicionar handler de remoção
+  function bindRemoveServiceHandlers() {
+    document.querySelectorAll('.remove-service').forEach(btn => {
+      btn.removeEventListener('click', btn._removeHandler); // Remove handler anterior se existir
+      btn._removeHandler = function(e) {
+        const row = e.currentTarget.closest('tr');
+        const delInput = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (delInput) delInput.checked = true;
+        row.remove();
+        recalcula();
+      };
+      btn.addEventListener('click', btn._removeHandler);
+    });
+  }
+  
+  // Atualiza o valor unitário conforme o serviço selecionado
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select[name$="-servico"]').forEach(function(select) {
+      select.addEventListener('change', function() {
+        const preco = select.selectedOptions[0]?.dataset.preco || '0.00';
+        const input = select.closest('tr').querySelector('.valor-unitario');
+        if (input) input.value = parseFloat(preco).toFixed(2);
+        recalcula();
+      });
+      // Inicializa o valor ao carregar
+      const preco = select.selectedOptions[0]?.dataset.preco || '0.00';
+      const input = select.closest('tr').querySelector('.valor-unitario');
+      if (input) input.value = parseFloat(preco).toFixed(2);
+    });
+  });
+
+  // Recalcula subtotais e total
+  function recalcula() {
+    let total = 0;
+    document.querySelectorAll('#service-group tbody tr').forEach(row => {
+      const sel = row.querySelector('select[name$="-servico"]');
+      const qty = row.querySelector('input[name$="-quantidade"]');
+      
+      // Obter o valor do serviço selecionado
+      const unit = parseFloat(sel.selectedOptions[0]?.dataset.preco || 0);
+      const q    = parseInt(qty.value || 0, 10);
+      const sub  = (unit * q) || 0;
+      
+      total += sub;
+      row.querySelector('.subtotal').textContent = sub.toFixed(2);
+    });
+    
+    // Atualizar o campo de valor original
+    document.getElementById('id_valor_original').value = total.toFixed(2);
+  }
+
+  // Event listeners para inputs
+  document.addEventListener('input', e => {
+    if (e.target.matches('select[name$="-servico"], input[name$="-quantidade"]')) {
+      recalcula();
+    }
+  });
+  
+  document.addEventListener('DOMContentLoaded', recalcula);
+
+  // Clona linha do formset
+  document.getElementById('add-service').addEventListener('click', () => {
+    const totalForms = document.getElementById('id_faturaservico_set-TOTAL_FORMS');
+    const idx = parseInt(totalForms.value, 10);
+    const row = document.querySelector('#service-group tbody tr:last-child');
+    
+    // Clonar a linha
+    const clone = row.cloneNode(true);
+    
+    // Resetar os valores
+    clone.querySelectorAll('select,input').forEach(i => {
+      if (i.type !== 'checkbox') i.value = '';
+    });
+    
+    // Atualizar os nomes dos campos
+    clone.innerHTML = clone.innerHTML.replace(/-\d+-/g, `-${idx}-`);
+    
+    // Adicionar a nova linha
+    row.parentNode.appendChild(clone);
+    
+    // Atualizar o contador de formulários
+    totalForms.value = idx + 1;
+    
+    // Adicionar evento ao novo seletor de serviço
+    clone.querySelector('select[name$="-servico"]').addEventListener('change', () => {
+      recalcula();
+    });
+  });
+
+  // Chama ao carregar e sempre que uma linha de serviço for adicionada
+  document.addEventListener('DOMContentLoaded', bindRemoveServiceHandlers);
+
+  // Sempre que clicar em "Adicionar Serviço", rebind os handlers e recalcula subtotal da nova linha
+  document.getElementById('add-service').addEventListener('click', () => {
+    setTimeout(() => {
+      bindRemoveServiceHandlers();
+
+      // Atualiza subtotal da nova linha
+      const rows = document.querySelectorAll('#service-group tbody tr');
+      const lastRow = rows[rows.length - 1];
+      if (lastRow) {
+        // Adiciona listeners para recalcular subtotal em tempo real
+        const servicoSelect = lastRow.querySelector('select[name$="-servico"]');
+        const quantidadeInput = lastRow.querySelector('input[name$="-quantidade"]');
+        const valorUnitarioInput = lastRow.querySelector('input[name$="-valor_unitario"]');
+        if (servicoSelect) {
+          servicoSelect.addEventListener('change', function() {
+            const preco = servicoSelect.selectedOptions[0]?.dataset.preco || '0.00';
+            if (valorUnitarioInput) valorUnitarioInput.value = parseFloat(preco).toFixed(2);
+            recalcula();
+          });
+          // Inicializa valor unitário ao adicionar linha
+          const preco = servicoSelect.selectedOptions[0]?.dataset.preco || '0.00';
+          if (valorUnitarioInput) valorUnitarioInput.value = parseFloat(preco).toFixed(2);
+        }
+        if (quantidadeInput) {
+          quantidadeInput.addEventListener('input', recalcula);
+        }
+        // Inicializa subtotal
+        recalcula();
+      }
+    }, 50); // Aguarda DOM atualizar
+  });
+
+  // Também rebind ao alterar o formset (ex: ao remover via checkbox)
+  document.querySelector('#service-group tbody').addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-service')) {
+      bindRemoveServiceHandlers();
+      recalcula();
+    }
+  });
+
+  // Garante que cada linha tenha listeners para recalcular subtotal em tempo real
+  function bindRealtimeSubtotal() {
+    document.querySelectorAll('#service-group tbody tr').forEach(row => {
+      const servicoSelect = row.querySelector('select[name$="-servico"]');
+      const quantidadeInput = row.querySelector('input[name$="-quantidade"]');
+      const valorUnitarioInput = row.querySelector('input[name$="-valor_unitario"]');
+      if (servicoSelect) {
+        servicoSelect.removeEventListener('change', recalcula);
+        servicoSelect.addEventListener('change', function() {
+          const preco = servicoSelect.selectedOptions[0]?.dataset.preco || '0.00';
+          if (valorUnitarioInput) valorUnitarioInput.value = parseFloat(preco).toFixed(2);
+          recalcula();
+        });
+        // Inicializa valor unitário ao carregar
+        const preco = servicoSelect.selectedOptions[0]?.dataset.preco || '0.00';
+        if (valorUnitarioInput) valorUnitarioInput.value = parseFloat(preco).toFixed(2);
+      }
+      if (quantidadeInput) {
+        quantidadeInput.removeEventListener('input', recalcula);
+        quantidadeInput.addEventListener('input', recalcula);
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', bindRealtimeSubtotal);
+
+</script>
+
+<style>
+  /* Estilos gerais */
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+  /* Inputs, selects e textarea */
+  input:not([type="checkbox"]), select, textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    background-color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  input:not([type="checkbox"]):focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  }
+  
+  /* Estilo para checkboxes */
+  input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+    accent-color: #f59e0b;
+  }
+  
+  /* Estilo para tabelas */
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+  
+  th {
+    background-color: #fef3c7;
+  }
+  
+  td, th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #fef3c7;
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Botões */
+  button[type="submit"] {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3), 0 2px 4px -1px rgba(245, 158, 11, 0.2);
+  }
+</style>
 {% endblock %}

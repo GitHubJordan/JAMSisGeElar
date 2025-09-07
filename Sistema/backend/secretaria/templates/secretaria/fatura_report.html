@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Relatório de Faturas{% endblock %}
+{% block content %}
+<div class="space-y-6 p-4">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+        <i class="fas fa-file-invoice text-yellow-600 mr-3"></i>
+        Relatório de Faturas
+      </h2>
+      <p class="text-sm text-gray-500">Visão consolidada das faturas emitidas.</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <!-- Filtro por Mês -->
+    <div class="space-y-1">
+      <label for="mes" class="block text-sm font-medium text-gray-700">Mês</label>
+      <select name="mes" id="mes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">
+        <option value="">Todos</option>
+        {% for i in "123456789101112" %}
+          <option value="{{ forloop.counter }}" {% if mes == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <!-- Filtro por Ano -->
+    <div class="space-y-1">
+      <label for="ano" class="block text-sm font-medium text-gray-700">Ano</label>
+      <input type="number" name="ano" id="ano" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+             value="{{ ano }}" min="2000" max="{% now 'Y' %}">
+    </div>
+    
+    <!-- Filtro por Status -->
+    <div class="space-y-1">
+      <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+      <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">
+        <option value="">Todos</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if status == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <!-- Filtro por Aluno -->
+    <div class="space-y-1">
+      <label for="aluno" class="block text-sm font-medium text-gray-700">Aluno</label>
+      <input type="text" name="aluno" id="aluno" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+             placeholder="Nome do aluno" value="{{ aluno_filter }}">
+    </div>
+    
+    <!-- Botões -->
+    <div class="flex space-x-2 items-end">
+      <button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition h-[42px]">
+        <i class="fas fa-filter mr-2"></i> Filtrar
+      </button>
+      <a href="?format=excel&mes={{ mes }}&ano={{ ano }}&status={{ status }}&aluno={{ aluno_filter }}" 
+         class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition h-[42px]">
+        <i class="fas fa-file-excel mr-2"></i> Excel
+      </a>
+    </div>
+  </form>
+
+  <!-- Tabela de Resultados -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden w-full">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Número</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Aluno</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Encarregado</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Emissão</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Vencimento</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-200 uppercase tracking-wider">Valor (AOA)</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Status</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for fatura in page_obj %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fatura.numero }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fatura.aluno.get_full_name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ fatura.aluno.encarregado.nome|default:"—" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ fatura.data_emissao|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ fatura.data_vencimento|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900">
+            {{ fatura.valor_atual|floatformat:2 }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+              {% if fatura.status == 'PAGO' %}bg-green-100 text-green-800
+              {% elif fatura.status == 'PENDENTE' %}bg-yellow-100 text-yellow-800
+              {% elif fatura.status == 'VENCIDO' %}bg-red-100 text-red-800
+              {% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ fatura.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+            <i class="fas fa-info-circle mr-2"></i>Nenhuma fatura encontrada
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="flex justify-center mt-4 w-full">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md">
+      {% if page_obj.has_previous %}
+        <a class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-l-md"
+           href="?page=1&mes={{ mes }}&ano={{ ano }}&status={{ status }}&aluno={{ aluno_filter }}">&laquo; Primeira</a>
+        <a class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50"
+           href="?page={{ page_obj.previous_page_number }}&mes={{ mes }}&ano={{ ano }}&status={{ status }}&aluno={{ aluno_filter }}">Anterior</a>
+      {% endif %}
+      
+      <span class="px-4 py-2 border border-gray-300 bg-gray-50 text-sm text-gray-700">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+      </span>
+      
+      {% if page_obj.has_next %}
+        <a class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50"
+           href="?page={{ page_obj.next_page_number }}&mes={{ mes }}&ano={{ ano }}&status={{ status }}&aluno={{ aluno_filter }}">Próxima</a>
+        <a class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-r-md"
+           href="?page={{ page_obj.paginator.num_pages }}&mes={{ mes }}&ano={{ ano }}&status={{ status }}&aluno={{ aluno_filter }}">Última &raquo;</a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+  
+  <!-- Resumo -->
+  <div class="mt-4 p-4 bg-gray-50 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <p class="text-sm text-gray-700"><strong>Total de Faturas:</strong> {{ page_obj.paginator.count }}</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-700"><strong>Valor Total:</strong> AOA {{ total_valor|default:0|floatformat:2 }}</p>
+    </div>
+    <div class="text-right">
+      <a href="{% url 'secretaria:fatura-list' %}" 
+         class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+        <i class="fas fa-arrow-left mr-2"></i> Voltar para Lista
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

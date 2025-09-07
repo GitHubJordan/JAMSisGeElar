@@ -6,7 +6,7 @@ from django.views.generic import UpdateView, ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from .models import ConfiguracaoInicial, BackupLog, ErrorLog, NotificationLog
+from .models import AccessLog, ConfiguracaoInicial, BackupLog, ErrorLog, NotificationLog
 from .forms import ConfiguracaoInicialForm
 from .management.commands.backup_database import Command as BackupCommand
 from django.core.exceptions import PermissionDenied
@@ -17,6 +17,11 @@ import subprocess
 import os
 from datetime import datetime
 from django.conf import settings
+
+from core.models import Exercicio
+from pedagogico.models import AnoLetivo
+from django.core import management
+
 
 # ------------------------------
 # Configuração Inicial (edit only)
@@ -58,20 +63,25 @@ class ConfiguracaoInicialUpdateView(LoginRequiredMixin, UpdateView):
 
 
 @login_required
-@role_required('Admin')
+@role_required('Admin', 'Diretor')
 def backup_list(request):
     """
     Exibe histórico de BackupLog e permite executar backup manual.
     """
     logs = BackupLog.objects.all().order_by('-data_execucao')
+    
     if request.method == 'POST':
-        # Executa backup manualmente via management command
-        cmd = BackupCommand()
-        # Chamamos handle() diretamente, passando a si mesmo como args
-        result = cmd.handle(manual=True)
+        try:
+            # Executa backup manualmente passando o ID do usuário
+            cmd = BackupCommand()
+            result = cmd.handle(manual=True, user_id=request.user.id)
+            messages.success(request, 'Backup executado com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro ao executar backup: {str(e)}')
+        
         return redirect('core:backup-list')
+    
     return render(request, 'core/backup_list.html', {'logs': logs})
-
 
 @method_decorator(role_required('Admin'), name='dispatch')
 class ErrorLogListView(LoginRequiredMixin, ListView):
@@ -89,3 +99,34 @@ class NotificationLogListView(LoginRequiredMixin, ListView):
     context_object_name = 'notifications'
     paginate_by = 20
     ordering = ['-data_envio']
+
+
+# ------------------------------
+# Exercício (switch)
+# ------------------------------
+
+@login_required
+@role_required('Admin', 'Diretor')
+def exercicio_list(request):
+    exercicios = Exercicio.objects.select_related('ano').all()
+    anos = AnoLetivo.objects.all().order_by('-data_inicio')
+    if request.method == 'POST':
+        ano_id = request.POST.get('ano_id')
+        management.call_command('exercicio_switch', ano_id)
+        messages.success(request, 'Fluxo de exercício trocado com sucesso.')
+        return redirect('core:exercicio-list')
+    return render(request, 'core/exercicio_list.html', {
+        'exercicios': exercicios,
+        'anos': anos,
+    })
+
+# ------------------------------
+# Access Log (Admin only)
+# ------------------------------
+
+@method_decorator(role_required('Admin'), name='dispatch')
+class AccessLogListView(LoginRequiredMixin, ListView):
+    model = AccessLog
+    template_name = 'core/accesslog_list.html'
+    context_object_name = 'logs'
+    paginate_by = 20

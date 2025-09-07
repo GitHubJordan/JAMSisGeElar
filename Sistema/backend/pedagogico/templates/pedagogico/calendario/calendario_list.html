@@ -3,64 +3,101 @@
 {% block title %}Calendário de Eventos{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  <div class="flex-grow-1 p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Calendário de Eventos</h2>
-      <a href="{% url 'pedagogico:calendario-create' %}" class="btn btn-success">+ Novo Evento</a>
+<div class="space-y-6">
+
+  <!-- Cabeçalho e botão criar -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Calendário de Eventos</h2>
+      <p class="text-sm text-gray-500">Gerencie feriados e eventos acadêmicos.</p>
     </div>
-    <table class="table table-striped">
-      <thead>
+    <a href="{% url 'pedagogico:calendario-create' %}"
+       class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-yellow-300 hover:from-yellow-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+      <i class="fas fa-plus mr-2"></i> Novo Evento
+    </a>
+  </div>
+
+  <!-- Tabela de Eventos -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
         <tr>
-          <th>Ano Letivo</th>
-          <th>Título</th>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Ações</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Ano Letivo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Título</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Data</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Descrição</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="bg-white divide-y divide-gray-100">
         {% for ev in eventos %}
-        <tr>
-          <td>{{ ev.ano_letivo.nome }}</td>
-          <td>{{ ev.titulo }}</td>
-          <td>{{ ev.data|date:"d/m/Y" }}</td>
-          <td>{{ ev.descricao|truncatechars:50 }}</td>
-          <td>
-            <a href="{% url 'pedagogico:calendario-edit' ev.pk %}" class="btn btn-sm btn-primary">🖉</a>
-            <a href="{% url 'pedagogico:calendario-delete' ev.pk %}" class="btn btn-sm btn-danger">🗑</a>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ev.ano_letivo.nome }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ ev.titulo }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ ev.data|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" title="{{ ev.descricao }}">
+            {{ ev.descricao|truncatechars:50 }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center flex justify-center space-x-4">
+            <a href="{% url 'pedagogico:calendario-edit' ev.pk %}"
+               class="text-blue-600 hover:text-blue-800 transition-colors" title="Editar">
+              <i class="fas fa-edit text-lg"></i>
+            </a>
+            <a href="{% url 'pedagogico:calendario-delete' ev.pk %}"
+               class="text-red-600 hover:text-red-800 transition-colors" title="Excluir">
+              <i class="fas fa-trash-alt text-lg"></i>
+            </a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5" class="text-center">Nenhum evento cadastrado.</td>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum evento cadastrado.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% if is_paginated %}
-      <nav>
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
-          {% endif %}
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% else %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-          {% endfor %}
-          {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">Próxima</span></li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
   </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md" aria-label="Paginação">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Anterior
+      </a>
+      {% else %}
+      <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+        Anterior
+      </span>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span aria-current="page"
+              class="relative z-10 inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+          {{ num }}
+        </span>
+        {% else %}
+        <a href="?page={{ num }}"
+           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          {{ num }}
+        </a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Próxima
+      </a>
+      {% else %}
+      <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+        Próxima
+      </span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

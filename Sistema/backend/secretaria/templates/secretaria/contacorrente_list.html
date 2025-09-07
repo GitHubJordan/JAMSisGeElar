@@ -1,63 +1,81 @@
-{# Sistema/backend/secretaria/templates/secretaria/contacorrente_list.html #}
 {% extends 'base.html' %}
 {% block title %}Contas Correntes{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4">
-    <h2 class="mb-3">Contas Correntes</h2>
-    <table class="table table-striped">
-      <thead>
+<div class="space-y-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Contas Correntes</h2>
+      <p class="text-sm text-gray-500">Visão geral dos saldos dos alunos.</p>
+    </div>
+  </div>
+
+  <div class="flex justify-end mb-4">
+    <a href="{% url 'secretaria:contacorrente-report' %}"
+       class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-700 to-indigo-500 hover:from-indigo-800 hover:to-indigo-600 text-white rounded-lg shadow-lg transition-all">
+      Relatório
+    </a>
+  </div>
+
+  <!-- Tabela -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
         <tr>
-          <th>Aluno</th>
-          <th>Total Débito</th>
-          <th>Total Crédito</th>
-          <th>Saldo</th>
-          <th>Última Atualização</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Aluno</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-200 uppercase tracking-wider">Total Débito</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-200 uppercase tracking-wider">Total Crédito</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-200 uppercase tracking-wider">Saldo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Última Atualização</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="bg-white divide-y divide-gray-100">
         {% for c in contas %}
-        <tr>
-          <td>{{ c.aluno.nome }} ({{ c.aluno.matricula }})</td>
-          <td>{{ c.total_debito }}</td>
-          <td>{{ c.total_credito }}</td>
-          <td>{{ c.saldo }}</td>
-          <td>{{ c.updated_at|date:"d/m/Y H:i" }}</td>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ c.aluno.nome }} ({{ c.aluno.matricula }})</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">AOA {{ c.total_debito|floatformat:2 }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">AOA {{ c.total_credito|floatformat:2 }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-600 text-right">AOA {{ c.saldo|floatformat:2 }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ c.updated_at|date:"d/m/Y H:i" }}</td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5" class="text-center">Nenhuma conta encontrada.</td>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma conta encontrada.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% if is_paginated %}
-      <nav>
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% else %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
   </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4 w-full">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-l-md">Anterior</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-l-md cursor-default">Anterior</span>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="px-4 py-2 border-t border-b border-indigo-500 bg-indigo-50 text-sm text-indigo-600">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}"
+           class="px-4 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-r-md">Próxima</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-r-md cursor-default">Próxima</span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

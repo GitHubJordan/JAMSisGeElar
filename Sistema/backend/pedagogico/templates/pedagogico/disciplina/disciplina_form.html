@@ -1,0 +1,143 @@
+{# Sistema/backend/pedagogico/templates/pedagogico/disciplina_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Disciplina - Sistema Escolar{% else %}Nova Disciplina - Sistema Escolar{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-green-600 mt-2">
+        {% if form.instance.pk %}Editar Disciplina{% else %}Nova Disciplina{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize os dados da disciplina
+        {% else %}
+          Preencha os campos para criar uma nova disciplina
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações da Disciplina -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            Dados da Disciplina
+          </h3>
+          
+          <div class="grid grid-cols-1 gap-6">
+            <!-- Campo: Nome -->
+            <div>
+              <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                </div>
+                {{ form.nome|as_crispy_field }}
+                {% if form.nome.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.nome.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Carga Horária -->
+            <div>
+              <label for="{{ form.carga_horaria.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Carga Horária (horas) *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.carga_horaria|as_crispy_field }}
+                {% if form.carga_horaria.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.carga_horaria.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'pedagogico:disciplina-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Disciplina{% endif %}
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  }
+</style>
+{% endblock %}

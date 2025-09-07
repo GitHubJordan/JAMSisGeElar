@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar Confirmação de Matrícula - Sistema Escolar{% endblock %}
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-8">
+      <div class="mx-auto bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-yellow-600 mt-2">
+        Confirmar Confirmação de Matrícula
+      </h2>
+      <p class="text-gray-500 mt-2">
+        Confirme a matrícula do aluno na nova turma
+      </p>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <i class="fas fa-user text-gray-500 mt-1 mr-2"></i>
+          <span><strong>Aluno:</strong> {{ prematricula.aluno }}</span>
+        </li>
+        <li class="flex items-start">
+          <i class="fas fa-users text-gray-500 mt-1 mr-2"></i>
+          <span><strong>Origem:</strong> {{ prematricula.turma_origem }} / {{ prematricula.ano_origem }}</span>
+        </li>
+        <li class="flex items-start">
+          <i class="fas fa-clock text-gray-500 mt-1 mr-2"></i>
+          <span><strong>Solicitado em:</strong> {{ prematricula.data_solic|date:"d/m/Y H:i" }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label for="turma" class="block text-sm font-medium text-gray-700 mb-1">Nova Turma *</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-users-class text-gray-400"></i>
+          </div>
+          <select name="turma" id="turma" required
+                  class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+            <option value="">-- selecione --</option>
+            {% for t in turmas %}
+            <option value="{{ t.pk }}">{{ t.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div class="flex justify-center space-x-4">
+        <button type="submit" name="acao" value="aprovar"
+                class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <i class="fas fa-check-circle mr-2"></i> Aprovar
+        </button>
+        <button type="submit" name="acao" value="recusar"
+                class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+          <i class="fas fa-times-circle mr-2"></i> Recusar
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

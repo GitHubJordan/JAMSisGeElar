@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-oz)3k+icl06e0a+uvf%(=q7xih(e)!at-n-ed2+q!0aecdwns=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost','0.0.0.0','192.168.28.87','192.168.100.107']
 
 
 # Application definition
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # Apps de terceiros
     'crispy_forms',
     'crispy_bootstrap5',
+    'widget_tweaks',
 
     # Apps do projeto
     'accounts',
@@ -46,7 +47,6 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
-    'core.middleware.ErrorLoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +54,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Middleware personalizado
+    'core.middleware.ErrorLoggingMiddleware',
+    'core.middleware.AnoLetivoMiddleware',
+    'core.middleware.InactivityLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'setup.urls'
@@ -73,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.exercicio_atual',
             ],
         },
     },
@@ -94,6 +99,12 @@ DATABASES = {
     }
 }
 
+# Expira a sessão após 45 minutos (2.700 segundos)
+SESSION_COOKIE_AGE = 60 * 45
+
+# Renova o timeout a cada request ativa
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -113,11 +124,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LLANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'Africa/Luanda'
 
@@ -135,7 +145,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # URL e diretório para arquivos estáticos (CSS, JS, imagens do front)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Caminho correto para a pasta static
+]
 
 # URL e diretório para arquivos de mídia (uploads de fotos, PDFs gerados)
 MEDIA_URL = '/media/'

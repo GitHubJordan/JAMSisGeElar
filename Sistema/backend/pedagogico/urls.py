@@ -55,6 +55,21 @@ urlpatterns = [
     path('calendario/edit/<int:pk>/', views.CalendarioUpdateView.as_view(), name='calendario-edit'),
     path('calendario/delete/<int:pk>/', views.CalendarioDeleteView.as_view(), name='calendario-delete'),
 
+    # CRUD Curso
+    path('cursos/',       views.CursoListView.as_view(),   name='curso-list'),
+    path('cursos/new/',   views.CursoCreateView.as_view(), name='curso-create'),
+    path('cursos/edit/<int:pk>/', views.CursoUpdateView.as_view(), name='curso-edit'),
+    path('cursos/delete/<int:pk>/', views.CursoDeleteView.as_view(), name='curso-delete'),
+
+    # Pré-matrícula
+    path('prematriculas/pendentes/', views.PreMatriculaPendentesListView.as_view(), name='prematricula-pendentes'),
+    path('prematricula/<int:pk>/confirmar/', views.confirmar_prematricula, name='confirmar-prematricula'),
+
+    # Rematrícula
+    path('rematricula/solicitar/', views.rematricula_solicitar, name='rematricula-solicitar'),
+    path('rematricula/pendentes/',  views.PreRematriculaListView.as_view(), name='rematricula-pendentes'),
+    path('rematricula/<int:pk>/confirmar/', views.rematricula_confirmar, name='rematricula-confirmar'),
+
     # Relatório de Ano Letivo
     path('relatorio/', views.relatorio_ano_letivo, name='relatorio-ano'),
 ]

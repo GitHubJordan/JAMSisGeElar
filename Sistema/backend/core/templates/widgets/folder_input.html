@@ -1,0 +1,17 @@
+# core/templates/widgets/folder_input.html
+{% load widget_tweaks %}
+
+<div class="input-group">
+    <input type="text" id="{{ widget.attrs.id }}_display" 
+           class="form-control" 
+           value="{{ widget.value|default:'' }}"
+           readonly>
+    <div class="input-group-append">
+        <span class="input-group-text">
+            {% render_field widget class="d-none" %}
+            <label for="{{ widget.attrs.id }}" class="btn btn-sm btn-secondary mb-0">
+                <i class="fas fa-folder-open"></i> Selecionar Pasta
+            </label>
+        </span>
+    </div>
+</div>

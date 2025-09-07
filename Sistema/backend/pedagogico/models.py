@@ -78,6 +78,22 @@ class Calendario(models.Model):
         if not (self.ano_letivo.data_inicio <= self.data <= self.ano_letivo.data_fim):
             raise ValidationError("A data do evento deve estar entre o início e o fim do Ano Letivo.")
 
+class Curso(models.Model):
+    codigo    = models.CharField(max_length=10, unique=True)
+    nome      = models.CharField(max_length=100)
+    descricao = models.TextField(blank=True)
+    ativo     = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['codigo']
+        verbose_name = 'Curso'
+        verbose_name_plural = 'Cursos'
+
+    def __str__(self):
+        return f"{self.codigo} – {self.nome}"
+
 class Turma(models.Model):
     """
     Conjunto de alunos numa série/turno, com disciplinas nucleares.
@@ -106,10 +122,12 @@ class Turma(models.Model):
     ano_letivo = models.ForeignKey(
         AnoLetivo,
         on_delete=models.PROTECT,
-        null=True,        # permitir NULO
+        null=False,        # permitir NULO
         blank=True,       # permitir formulário em branco, se usar admin/forms
         related_name="turmas",
     )
+    curso = models.ForeignKey(Curso, on_delete=models.PROTECT)
+
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Atualizado em', auto_now=True)
 
@@ -161,6 +179,19 @@ class TurmaDisciplina(models.Model):
         on_delete=models.CASCADE,
         related_name='disciplina_turmas'
     )
+    professor_responsavel = models.CharField(
+        'Professor Responsável',
+        max_length=150,
+        blank=True,
+        help_text='Nome ou FK para Colaborador (futuro)',
+    )
+    ano_letivo = models.ForeignKey(
+        AnoLetivo,
+        on_delete=models.PROTECT,
+        null=False,        # permitir NULO
+        blank=True,       # permitir formulário em branco, se usar admin/forms
+        related_name="turma_disciplinas",
+    )
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
 
     class Meta:
@@ -192,7 +223,14 @@ class Matricula(models.Model):
         on_delete=models.CASCADE,
         related_name='matriculas'
     )
-    ano_letivo = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT)
+    ano_letivo = models.ForeignKey(
+        AnoLetivo,
+        on_delete=models.PROTECT,
+        null=False,        # permitir NULO
+        blank=True,       # permitir formulário em branco, se usar admin/forms
+        related_name="matriculas",
+    )
+    curso = models.ForeignKey(Curso, on_delete=models.PROTECT, null=True, blank=True)
     data_matricula = models.DateField('Data de Matrícula')
     status = models.CharField('Status', max_length=12, choices=STATUS_CHOICES, default='ATIVO')
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
@@ -202,6 +240,13 @@ class Matricula(models.Model):
         verbose_name = 'Matrícula'
         verbose_name_plural = 'Matrículas'
         unique_together = [['aluno', 'turma']]
+        constraints = [
+            # proíbe dois registros com o mesmo aluno no mesmo ano_letivo
+            models.UniqueConstraint(
+                fields=['aluno', 'ano_letivo'],
+                name='unique_matricula_aluno_ano'
+            ),
+        ]
 
     def __str__(self):
         return f'{self.aluno.matricula} → {self.turma.nome}'
@@ -226,7 +271,13 @@ class Nota(models.Model):
         on_delete=models.CASCADE,
         related_name='notas'
     )
-    ano_letivo = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT)
+    ano_letivo = models.ForeignKey(
+        AnoLetivo,
+        on_delete=models.PROTECT,
+        null=False,        # permitir NULO
+        blank=True,       # permitir formulário em branco, se usar admin/forms
+        related_name="notas",
+    )
     nota1 = models.DecimalField('N1', max_digits=5, decimal_places=2, default=0)
     nota2 = models.DecimalField('N2', max_digits=5, decimal_places=2, default=0)
     nota3 = models.DecimalField('N3', max_digits=5, decimal_places=2, default=0)
@@ -281,10 +332,22 @@ class Nota(models.Model):
         self.media_final = (
             (self.nota1 * peso1 + self.nota2 * peso2 + self.nota3 * peso3) / soma_pesos
         )
-        # Determina situação conforme média_final ≥ 60
-        self.situacao = 'APROVADO' if self.media_final >= 60 else 'REPROVADO'
+        # Determina situação conforme média_final ≥ 10
+        self.situacao = 'APROVADO' if self.media_final >= 10 else 'REPROVADO'
         return self.media_final
-
+    
+    @property
+    def situacao_atual(self):
+        # só para exibição — não salva no banco
+        media = (self.nota1 + self.nota2 + self.nota3) / 3
+        return 'APROVADO' if media >= 10 else 'REPROVADO'
+    
+    def save(self, *args, **kwargs):
+        # recalcula sempre que for salvo
+        self.calcular_media_parcial()
+        # chamar sem pesos para usar média simples e definir self.situacao
+        self.calcular_media_final()
+        super().save(*args, **kwargs)
 
 class Boletim(models.Model):
     """
@@ -318,3 +381,28 @@ class Boletim(models.Model):
 
     def __str__(self):
         return f'Boletim {self.trimestre}º – {self.turma.nome}'
+
+class PreRematricula(models.Model):
+    """
+    Solicitação de Rematrícula de um aluno já matriculado para o próximo ano letivo.
+    """
+    STATUS_CHOICES = [
+        ('PENDENTE','Pendente'),
+        ('APROVADA','Aprovada'),
+        ('RECUSADA','Recusada'),
+    ]
+
+    aluno          = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    turma_origem   = models.ForeignKey(Turma, on_delete=models.PROTECT, related_name='rematriculas_origem')
+    curso_origem   = models.ForeignKey(Curso, on_delete=models.PROTECT)
+    ano_origem     = models.ForeignKey(AnoLetivo, on_delete=models.PROTECT, related_name='+')
+    data_solic     = models.DateTimeField(auto_now_add=True)
+    status         = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
+
+    class Meta:
+        verbose_name = 'Pré‑Rematrícula'
+        verbose_name_plural = 'Pré‑Rematrículas'
+        ordering = ['-data_solic']
+
+    def __str__(self):
+        return f"{self.aluno} ({self.turma_origem}) → {self.status}"

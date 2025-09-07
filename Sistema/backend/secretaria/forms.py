@@ -1,5 +1,8 @@
 from django import forms
-from .models import Encarregado, Aluno, Fatura
+from django.forms import BaseInlineFormSet, inlineformset_factory
+
+from pedagogico.models import AnoLetivo, PreRematricula, Turma
+from .models import Encarregado, Aluno, Fatura, Servico, FaturaServico, PreMatricula
 from django.core.exceptions import ValidationError
 from datetime import datetime
 
@@ -103,3 +106,72 @@ class FaturaForm(forms.ModelForm):
         if data_vencimento and data_emissao and data_vencimento < data_emissao:
             raise ValidationError("A data de vencimento não pode ser anterior à data de emissão.")
         return cleaned
+
+class ServicoForm(forms.ModelForm):
+    class Meta:
+        model = Servico
+        fields = ['codigo', 'descricao', 'preco', 'ativo']
+        widgets = {
+            'preco': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+
+
+class BaseFaturaServicoFormset(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # para cada formulário já existente, popula valor_unitario
+        for form in self.forms:
+            if form.instance and form.instance.pk:
+                form.fields['valor_unitario'].initial = form.instance.servico.preco
+
+    def clean(self):
+        """
+        Garante que, se o usuário não mexeu no valor_unitario, 
+        ele reflita sempre o preço atual do serviço.
+        """
+        for form in self.forms:
+            serv = form.cleaned_data.get('servico')
+            if serv and not form.cleaned_data.get('valor_unitario'):
+                form.cleaned_data['valor_unitario'] = serv.preco
+        return super().clean()
+
+
+FaturaServicoFormset = inlineformset_factory(
+    Fatura, FaturaServico,
+    formset=BaseFaturaServicoFormset,
+    fields=['servico','quantidade', 'valor_unitario'],
+    extra=1, can_delete=True
+)
+
+
+class PreMatriculaForm(forms.ModelForm):
+    class Meta:
+        model = PreMatricula
+        fields = ['aluno', 'curso']
+        widgets = {
+            'aluno':  forms.Select(attrs={'class': 'form-select'}),
+            'curso':  forms.Select(attrs={'class': 'form-select'}),
+        }
+        
+
+class PreRematriculaForm(forms.ModelForm):
+    turma_origem = forms.ModelChoiceField(
+        queryset=Turma.objects.none(),
+        label='Turma Atual',
+    )
+
+    class Meta:
+        model = PreRematricula
+        fields = ['aluno', 'turma_origem']
+        widgets = {
+            'aluno': forms.Select(attrs={'class': 'w-full'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # só exibe turmas do ano ativo
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        if ano:
+            self.fields['turma_origem'].queryset = Turma.objects.filter(ano_letivo=ano)
+        else:
+            self.fields['turma_origem'].queryset = Turma.objects.none()

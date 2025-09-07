@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Excluir Pré‑Matrícula - Sistema Escolar{% endblock %}
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-red-600 mt-2">
+        Excluir Pré‑Matrícula
+      </h2>
+    </div>
+
+    <div class="text-center mb-8">
+      <p class="text-gray-600 mb-4">
+        Você está prestes a excluir permanentemente a pré-matrícula:
+      </p>
+      <div class="bg-red-50 border border-red-200 p-4 rounded-lg inline-block">
+        <p class="text-lg font-semibold text-red-700">{{ object.aluno }}</p>
+        <p class="text-red-600 mt-1">Curso: {{ object.curso }}</p>
+      </div>
+      <p class="mt-6 text-gray-600">
+        Esta ação não pode ser desfeita. Tem certeza que deseja continuar?
+      </p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex justify-center space-x-4">
+        <a href="{% url 'secretaria:prematricula-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+          Confirmar Exclusão
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

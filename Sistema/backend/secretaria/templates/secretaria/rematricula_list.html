@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Solicitações de Confirmação de Matrícula - Sistema Escolar{% endblock %}
+{% block content %}
+<div class="space-y-6 p-6">
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Solicitações de Confirmação de Matrícula</h2>
+      <p class="text-sm text-gray-500">Gerencie as solicitações de confirmação de matrícula</p>
+    </div>
+    <a href="{% url 'secretaria:rematricula-create' %}"
+       class="inline-flex items-center bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-600 hover:to-yellow-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+      <i class="fas fa-plus mr-2"></i> Nova Solicitação
+    </a>
+  </div>
+
+  <!-- Tabela dentro de card -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Aluno</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Turma Atual</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Solicitado</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for rem in pendentes %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rem.aluno }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ rem.turma_origem }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ rem.data_solic|date:"d/m/Y H:i" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm flex justify-center space-x-4">
+            <a href="{% url 'secretaria:rematricula-edit' rem.pk %}" class="text-blue-500 hover:text-blue-700" title="Editar">
+              <i class="fas fa-edit text-lg"></i>
+            </a>
+            <a href="{% url 'secretaria:rematricula-delete' rem.pk %}" class="text-red-500 hover:text-red-700" title="Excluir">
+              <i class="fas fa-trash-alt text-lg"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+            <i class="fas fa-inbox text-3xl text-gray-300 mb-2"></i>
+            <p>Nenhuma solicitação pendente.</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

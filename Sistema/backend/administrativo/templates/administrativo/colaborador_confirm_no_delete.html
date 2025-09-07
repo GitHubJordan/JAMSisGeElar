@@ -1,0 +1,24 @@
+{# Sistema/backend/administrativo/templates/administrativo/colaborador_confirm_no_delete.html #}
+{% extends 'base.html' %}
+{% block title %}Erro de Exclusão | Colaborador{% endblock %}
+
+{% block content %}
+<div class="flex justify-center">
+  <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 space-y-6">
+    <div class="flex items-center space-x-3">
+      <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+      <h2 class="text-2xl font-semibold text-gray-800">Erro de Exclusão</h2>
+    </div>
+    <p class="text-gray-600">
+      Não é possível excluir colaborador com salários registrados.
+    </p>
+
+    <div class="flex justify-end space-x-3">
+      <a href="{% url 'administrativo:colaborador-list' %}"
+         class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+        Cancelar
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

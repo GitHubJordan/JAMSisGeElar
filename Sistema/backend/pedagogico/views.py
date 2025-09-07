@@ -1,4 +1,5 @@
 # Sistema/backend/pedagogico/views.py
+from io import BytesIO
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -6,13 +7,20 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from .models import Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim, AnoLetivo, Calendario
-from .forms import TurmaForm, DisciplinaForm, TurmaDisciplinaForm, MatriculaForm, NotaForm, AnoLetivoForm, CalendarioForm
+
+from core.mixins import AnoContextMixin
+from .models import PreRematricula, Turma, Disciplina, TurmaDisciplina, Matricula, Nota, Boletim, AnoLetivo, Calendario, Curso
+from .forms import PreRematriculaForm, TurmaForm, DisciplinaForm, TurmaDisciplinaForm, MatriculaForm, NotaForm, AnoLetivoForm, CalendarioForm, CursoForm
 from accounts.decorators import role_required
+
+from secretaria.models import PreMatricula
 
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
+
+from django.contrib import messages
+from django.utils import timezone
 
 
 @login_required
@@ -25,7 +33,7 @@ def usuario_redirect_pedagogico(request):
 # --------------------------------
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
-class TurmaListView(LoginRequiredMixin, ListView):
+class TurmaListView(LoginRequiredMixin, AnoContextMixin, ListView):
     model = Turma
     template_name = 'pedagogico/turma/turma_list.html'
     context_object_name = 'turmas'
@@ -33,16 +41,28 @@ class TurmaListView(LoginRequiredMixin, ListView):
     ordering = ['nome']
 
     def get_queryset(self):
+        # Pega ano ativo (ativo=True)
         ano = AnoLetivo.objects.filter(ativo=True).first()
         qs = super().get_queryset()
-        return qs.filter(ano_letivo=ano)
+        if ano:
+            return qs.filter(ano_letivo=ano)
+        return qs.none()
 
-@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
+
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
 class TurmaCreateView(LoginRequiredMixin, CreateView):
     model = Turma
     form_class = TurmaForm
     template_name = 'pedagogico/turma/turma_form.html'
     success_url = reverse_lazy('pedagogico:turma-list')
+
+    def form_valid(self, form):
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        if not ativo:
+            form.add_error(None, "Não há nenhum ano letivo ativo definido.")
+            return super().form_invalid(form)
+        form.instance.ano_letivo = ativo
+        return super().form_valid(form)
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -101,15 +121,23 @@ class DisciplinaDeleteView(LoginRequiredMixin, DeleteView):
 # --------------------------------
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
-class TurmaDisciplinaListView(LoginRequiredMixin, ListView):
+class TurmaDisciplinaListView(LoginRequiredMixin, AnoContextMixin, ListView):
     model = TurmaDisciplina
     template_name = 'pedagogico/turmadisciplina/turmadisciplina_list.html'
     context_object_name = 'associacoes'
     paginate_by = 20
     ordering = ['turma__nome', 'disciplina__nome']
 
+    # def get_queryset(self):
+    #    return super().get_queryset().select_related('turma', 'disciplina')
+    
     def get_queryset(self):
-        return super().get_queryset().select_related('turma', 'disciplina')
+        # Pega ano ativo (ativo=True)
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        qs = super().get_queryset()
+        if ano:
+            return qs.filter(ano_letivo=ano)
+        return qs.none()
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -118,6 +146,15 @@ class TurmaDisciplinaCreateView(LoginRequiredMixin, CreateView):
     form_class = TurmaDisciplinaForm
     template_name = 'pedagogico/turmadisciplina/turmadisciplina_form.html'
     success_url = reverse_lazy('pedagogico:turmadisciplina-list')
+
+    def form_valid(self, form):
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        if not ativo:
+            form.add_error(None, "Não há nenhum ano letivo ativo definido.")
+            return super().form_invalid(form)
+        # força o FK antes do save()
+        form.instance.ano_letivo = ativo
+        return super().form_valid(form)
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -140,7 +177,7 @@ class TurmaDisciplinaDeleteView(LoginRequiredMixin, DeleteView):
 # --------------------------------
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
-class MatriculaListView(LoginRequiredMixin, ListView):
+class MatriculaListView(LoginRequiredMixin, AnoContextMixin, ListView):
     model = Matricula
     template_name = 'pedagogico/matricula/matricula_list.html'
     context_object_name = 'matriculas'
@@ -155,14 +192,22 @@ class MatriculaListView(LoginRequiredMixin, ListView):
         qs = super().get_queryset()
         return qs.filter(ano_letivo=ano)
 
-
-
-@method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
 class MatriculaCreateView(LoginRequiredMixin, CreateView):
     model = Matricula
     form_class = MatriculaForm
     template_name = 'pedagogico/matricula/matricula_form.html'
     success_url = reverse_lazy('pedagogico:matricula-list')
+
+    def form_valid(self, form):
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        if not ativo:
+            form.add_error(None, "Não há nenhum ano letivo ativo definido.")
+            return super().form_invalid(form)
+        form.instance.ano_letivo = ativo
+        # curso atribuído automaticamente da turma
+        form.instance.curso = form.instance.turma.curso
+        return super().form_valid(form)
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -172,6 +217,10 @@ class MatriculaUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'pedagogico/matricula/matricula_form.html'
     success_url = reverse_lazy('pedagogico:matricula-list')
 
+    def form_valid(self, form):
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        form.instance.ano_letivo = ativo
+        return super().form_valid(form)
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class MatriculaDeleteView(LoginRequiredMixin, DeleteView):
@@ -185,7 +234,7 @@ class MatriculaDeleteView(LoginRequiredMixin, DeleteView):
 # --------------------------------
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
-class NotaListView(LoginRequiredMixin, ListView):
+class NotaListView(LoginRequiredMixin, AnoContextMixin, ListView):
     model = Nota
     template_name = 'pedagogico/nota/nota_list.html'
     context_object_name = 'notas'
@@ -207,6 +256,15 @@ class NotaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'pedagogico/nota/nota_form.html'
     success_url = reverse_lazy('pedagogico:nota-list')
 
+    def form_valid(self, form):
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        if not ativo:
+            form.add_error(None, "Não há nenhum ano letivo ativo definido.")
+            return super().form_invalid(form)
+        # força o FK antes do save()
+        form.instance.ano_letivo = ativo
+        return super().form_valid(form)
+
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
 class NotaUpdateView(LoginRequiredMixin, UpdateView):
@@ -214,6 +272,15 @@ class NotaUpdateView(LoginRequiredMixin, UpdateView):
     form_class = NotaForm
     template_name = 'pedagogico/nota/nota_form.html'
     success_url = reverse_lazy('pedagogico:nota-list')
+
+    def form_valid(self, form):
+        # força o FK do ano letivo ativo, tal como na criação
+        ativo = AnoLetivo.objects.filter(ativo=True).first()
+        if not ativo:
+            form.add_error(None, "Não há nenhum ano letivo ativo definido.")
+            return super().form_invalid(form)
+        form.instance.ano_letivo = ativo
+        return super().form_valid(form)
 
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
@@ -228,7 +295,7 @@ class NotaDeleteView(LoginRequiredMixin, DeleteView):
 # --------------------------------
 
 @method_decorator(role_required('Admin', 'Diretor', 'Pedagogico'), name='dispatch')
-class BoletimListView(LoginRequiredMixin, ListView):
+class BoletimListView(LoginRequiredMixin, AnoContextMixin, ListView):
     model = Boletim
     template_name = 'pedagogico/boletim/boletim_list.html'
     context_object_name = 'boletins'
@@ -408,7 +475,7 @@ def calendario_mensal(request):
 # CRUE de Relatório Academinico
 # --------------------------------
 @login_required
-@role_required('Admin','Diretor','Subdiretor Pedagógico')
+@role_required('Admin','Diretor','Pedagogico')
 def relatorio_ano_letivo(request):
     ano = AnoLetivo.objects.filter(ativo=True).first()
     matriculas = Matricula.objects.filter(ano_letivo=ano).select_related('aluno','turma')
@@ -420,7 +487,219 @@ def relatorio_ano_letivo(request):
         })
         pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
         return HttpResponse(pdf, content_type='application/pdf')
+    
+    if request.GET.get('format') == 'excel':
+        import pandas as pd
+        # Build rows de matrículas e notas
+        buf = BytesIO()
+        with pd.ExcelWriter(buf, engine='openpyxl') as writer:
+            pd.DataFrame([...]).to_excel(writer, sheet_name='Matrículas', index=False)
+            pd.DataFrame([...]).to_excel(writer, sheet_name='Notas', index=False)
+
 
     return render(request,'pedagogico/relatorio.html',{
         'ano':ano,'matriculas':matriculas,'notas':notas
+    })
+
+
+# --------------------------------
+# CRUD de Curso
+# --------------------------------
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class CursoListView(LoginRequiredMixin, ListView):
+    model = Curso
+    template_name = 'pedagogico/curso/curso_list.html'
+    context_object_name = 'cursos'
+    paginate_by = 20
+
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class CursoCreateView(LoginRequiredMixin, CreateView):
+    model = Curso
+    form_class = CursoForm
+    template_name = 'pedagogico/curso/curso_form.html'
+    success_url = reverse_lazy('pedagogico:curso-list')
+
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class CursoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Curso
+    form_class = CursoForm
+    template_name = 'pedagogico/curso/curso_form.html'
+    success_url = reverse_lazy('pedagogico:curso-list')
+
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class CursoDeleteView(LoginRequiredMixin, DeleteView):
+    model = Curso
+    template_name = 'pedagogico/curso/curso_confirm_delete.html'
+    success_url = reverse_lazy('pedagogico:curso-list')
+
+# --------------------------------
+# CRUD de Pré-Matrícula
+# --------------------------------
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class PreMatriculaPendentesListView(LoginRequiredMixin, AnoContextMixin, ListView):
+    model = PreMatricula
+    template_name = 'pedagogico/prematricula/prematricula_pendentes_list.html'
+    context_object_name = 'pendentes'
+    paginate_by = 20
+    ordering = ['-data_solic']
+
+    def get_queryset(self):
+        ano = AnoLetivo.objects.filter(ativo=True).first()
+        qs  = PreMatricula.objects.filter(status='PENDENTE')
+        if ano:
+            # converte o campo nome ("2025" ou "2025-2026") num inteiro de ano
+            try:
+                ano_int = int(ano.nome.split('-')[0])
+            except ValueError:
+                ano_int = timezone.now().year
+            # filtra pela parte “ano” do DateTimeField
+            return qs.filter(data_solic__year=ano_int).order_by('-data_solic')
+        return qs.order_by('-data_solic')
+
+@login_required
+@role_required('Admin','Diretor','Pedagogico')
+def confirmar_prematricula(request, pk):
+    prem = get_object_or_404(PreMatricula, pk=pk, status='PENDENTE')
+    ano = AnoLetivo.objects.filter(ativo=True).first()
+    if not ano:
+        messages.error(request, "Não há ano letivo ativo.")
+        return redirect('pedagogico:prematricula-pendentes')
+
+    turmas = Turma.objects.filter(ano_letivo=ano)
+
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        turma_id = request.POST.get('turma')
+
+        if acao == 'aprovar':
+            # 1) Seleção de turma obrigatória
+            if not turma_id:
+                messages.error(request, "Por favor, selecione uma turma.")
+                return redirect(request.path)
+
+            turma = get_object_or_404(Turma, pk=turma_id, ano_letivo=ano)
+
+            # 2) Verifica se o aluno já tem matrícula neste ano
+            existe = Matricula.objects.filter(
+                aluno=prem.aluno,
+                ano_letivo=ano
+            )
+            if existe.exists():
+                messages.error(request,
+                    "Este aluno já possui matrícula no ano letivo atual.")
+                return redirect(request.path)
+
+            # 3) Garante que turma.curso == prem.curso
+            if turma.curso != prem.curso:
+                messages.error(request,
+                    "A turma escolhida não pertence ao curso solicitado na pré‑matrícula.")
+                return redirect(request.path)
+
+            # Tudo OK → cria matrícula
+            Matricula.objects.create(
+                aluno=prem.aluno,
+                turma=turma,
+                curso=turma.curso,
+                ano_letivo=ano,
+                data_matricula=timezone.now().date()
+            )
+            prem.status = 'APROVADA'
+            prem.save()
+            messages.success(request, "Pré‑matrícula aprovada.")
+            return redirect('pedagogico:prematricula-pendentes')
+
+        elif acao == 'recusar':
+            prem.status = 'RECUSADA'
+            prem.save()
+            messages.warning(request, "Pré‑matrícula recusada.")
+            return redirect('pedagogico:prematricula-pendentes')
+
+    return render(request, 'pedagogico/prematricula/confirmar_prematricula.html', {
+        'prematricula': prem,
+        'turmas': turmas,
+    })
+
+# --------------------------------
+# CRUD de Confirmação de Matrícula
+# --------------------------------
+@login_required
+@role_required('Admin','Diretor','Pedagogico')
+def rematricula_solicitar(request):
+    """
+    Secretaria pré‑solicita rematrícula de alunos ativos.
+    """
+    if request.method == 'POST':
+        form = PreRematriculaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Solicitação de rematrícula criada.")
+            return redirect('pedagogico:rematricula-pendentes')
+    else:
+        form = PreRematriculaForm()
+    return render(request, 'pedagogico/rematricula/rematricula_form.html', {'form': form})
+
+@method_decorator(role_required('Admin','Diretor','Pedagogico'), name='dispatch')
+class PreRematriculaListView(LoginRequiredMixin, ListView):
+    model = PreRematricula
+    template_name = 'pedagogico/rematricula/rematricula_pendentes_list.html'
+    context_object_name = 'pendentes'
+    queryset = PreRematricula.objects.filter(status='PENDENTE')
+
+@login_required
+@role_required('Admin','Diretor','Pedagogico')
+def rematricula_confirmar(request, pk):
+    """
+    Pedagógico aprova/recusa e efetiva nova matrícula.
+    """
+    prem = get_object_or_404(PreRematricula, pk=pk, status='PENDENTE')
+    ano_novo = AnoLetivo.objects.filter(ativo=True).first()
+
+    if not ano_novo:
+        messages.error(request, "Não há ano letivo ativo definido.")
+        return redirect('pedagogico:rematricula-pendentes')
+
+    # Mostra apenas turmas do curso de origem e do ano letivo ativo
+    turmas = Turma.objects.filter(curso=prem.curso_origem, ano_letivo=ano_novo)
+
+
+    if request.method == 'POST':
+        acao    = request.POST.get('acao')
+        turma_id = request.POST.get('turma')
+        if acao == 'aprovar' and turma_id:
+            turma = get_object_or_404(Turma, pk=turma_id, ano_letivo=ano_novo)
+
+            # ⚠️ Verifica se já existe matrícula deste aluno neste ano letivo
+            if Matricula.objects.filter(aluno=prem.aluno, ano_letivo=ano_novo).exists():
+                messages.error(request, "Este aluno já possui matrícula no ano letivo atual.")
+                return redirect(request.path)
+
+            # Garante que a turma corresponde ao curso de origem
+            if turma.curso != prem.curso_origem:
+                messages.error(request, "A turma selecionada não corresponde ao curso de origem do aluno.")
+                return redirect(request.path)
+
+            # Tudo certo → cria nova matrícula
+            Matricula.objects.create(
+                aluno=prem.aluno,
+                turma=turma,
+                curso=turma.curso,
+                ano_letivo=ano_novo,
+                data_matricula=timezone.now().date()
+            )
+            prem.status = 'APROVADA'
+            prem.save()
+            messages.success(request, "Rematrícula aprovada e efetivada.")
+            return redirect('pedagogico:rematricula-pendentes')
+
+        elif acao == 'recusar':
+            prem.status = 'RECUSADA'
+            prem.save()
+            messages.warning(request, "Rematrícula recusada.")
+            return redirect('pedagogico:rematricula-pendentes')
+        else:
+            messages.error(request, "Escolha uma ação e turma válidas.")
+
+    return render(request, 'pedagogico/rematricula/rematricula_confirmar.html', {
+        'prematricula': prem,
+        'turmas': turmas
     })

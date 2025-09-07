@@ -1,0 +1,132 @@
+{# Sistema/backend/pedagogico/templates/pedagogico/boletim_list.html #}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Boletins{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Boletins</h2>
+      <p class="text-sm text-gray-500">Gere e visualize os boletins trimestrais por turma.</p>
+    </div>
+  </div>
+
+  <!-- Formulário de Geração -->
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <form method="post" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      {% csrf_token %}
+      <div class="flex flex-col">
+        <label for="turma" class="text-sm font-medium text-gray-700">Turma</label>
+        <select name="turma" id="turma" required
+                class="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition">
+          <option value="">Selecione...</option>
+          {% for t in turmas %}
+          <option value="{{ t.pk }}">{{ t.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col">
+        <label for="trimestre" class="text-sm font-medium text-gray-700">Trimestre</label>
+        <select name="trimestre" id="trimestre" required
+                class="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition">
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+      </div>
+      <div class="md:col-span-1">
+        <button type="submit"
+                class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition">
+          <i class="fas fa-file-pdf mr-2"></i> Gerar PDF
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de Boletins -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Turma</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Trimestre</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Gerado Por</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Data de Geração</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Arquivo</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for b in boletins %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ b.turma.nome }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ b.trimestre }}º</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ b.gerado_por.username }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ b.data_geracao|date:"d/m/Y H:i" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            {% if b.arquivo_pdf %}
+            <a href="{{ b.arquivo_pdf.url }}" target="_blank"
+               class="inline-flex items-center px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition">
+              <i class="fas fa-download mr-1"></i> Download
+            </a>
+            {% else %}
+            <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum boletim gerado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md" aria-label="Paginação">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Anterior
+      </a>
+      {% else %}
+      <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+        Anterior
+      </span>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span aria-current="page"
+              class="relative z-10 inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+          {{ num }}
+        </span>
+        {% else %}
+        <a href="?page={{ num }}"
+           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          {{ num }}
+        </a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Próxima
+      </a>
+      {% else %}
+      <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-default">
+        Próxima
+      </span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

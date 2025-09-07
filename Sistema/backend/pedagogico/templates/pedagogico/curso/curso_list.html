@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Cursos - Sistema Escolar{% endblock %}
+{% block content %}
+<div class="space-y-6 p-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-800">Cursos</h2>
+      <p class="text-sm text-gray-500">Gerencie todos os cursos oferecidos pela instituição</p>
+    </div>
+    <a href="{% url 'pedagogico:curso-create' %}"
+       class="inline-flex items-center bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+      <i class="fas fa-plus mr-2"></i> Novo Curso
+    </a>
+  </div>
+
+  <!-- Tabela dentro de card, 100% width -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Código</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">Nome</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ativo</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for curso in cursos %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ curso.codigo }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ curso.nome }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            {% if curso.ativo %}
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+              Ativo
+            </span>
+            {% else %}
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              Inativo
+            </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm flex justify-center space-x-4">
+            <a href="{% url 'pedagogico:curso-edit' curso.pk %}" class="text-blue-500 hover:text-blue-700" title="Editar">
+              <i class="fas fa-edit text-lg"></i>
+            </a>
+            <a href="{% url 'pedagogico:curso-delete' curso.pk %}" class="text-red-500 hover:text-red-700" title="Excluir">
+              <i class="fas fa-trash-alt text-lg"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+            <i class="fas fa-inbox text-3xl text-gray-300 mb-2"></i>
+            <p>Nenhum curso cadastrado</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-4 w-full">
+    <nav class="inline-flex shadow-sm -space-x-px rounded-md">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-l-md">Anterior</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-l-md cursor-default">Anterior</span>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="px-4 py-2 border-t border-b border-indigo-500 bg-indigo-50 text-sm text-indigo-600">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}"
+           class="px-4 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="px-3 py-2 border border-gray-300 bg-white text-sm text-gray-500 hover:bg-gray-50 rounded-r-md">Próxima</a>
+      {% else %}
+      <span class="px-3 py-2 border border-gray-300 bg-gray-100 text-sm text-gray-400 rounded-r-md cursor-default">Próxima</span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

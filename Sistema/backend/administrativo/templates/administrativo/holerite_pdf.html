@@ -1,76 +1,233 @@
 {# Sistema/backend/administrativo/templates/administrativo/holerite_pdf.html #}
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-    h1, h2 { text-align: center; }
-    .cabecalho { text-align: center; margin-bottom: 20px; }
-    .dados { margin: 20px; }
-    .dados p { margin: 4px 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-    th { background-color: #eee; }
+    /* Fonte e reset básico */
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
+    }
+    body {
+      font-family: DejaVu Sans, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    h1, h2 {
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      margin: 4px 0;
+    }
+    /* Cabeçalho principal com logo e instituição */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #006666;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header .title {
+      text-align: center;
+      flex: 1;
+    }
+    .header .title h1 {
+      font-size: 18px;
+      color: #006666;
+      font-weight: bold;
+    }
+    .header .title h2 {
+      font-size: 14px;
+      color: #006666;
+      font-weight: normal;
+    }
+    /* Dados do colaborador */
+    .employee-info {
+      margin-bottom: 20px;
+    }
+    .employee-info table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .employee-info td {
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    .employee-info .label {
+      font-weight: bold;
+      width: 130px;
+    }
+    /* Tabela de valores */
+    .salary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .salary-table th, .salary-table td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: center;
+    }
+    .salary-table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+    .salary-table .section-header {
+      background-color: #e6f7f7;
+      font-weight: bold;
+    }
+    /* Assinaturas */
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+    .signatures .block {
+      width: 45%;
+      text-align: center;
+    }
+    .signatures .block .line {
+      margin-top: 40px;
+      border-top: 1px solid #333;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .signatures .block p {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #555;
+    }
+    /* Rodapé da empresa */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-top: 1px solid #ccc;
+      padding: 8px 15px;
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+    }
   </style>
   <title>Recibo de Pagamento - {{ colaborador.nome }}</title>
 </head>
 <body>
-  <div class="cabecalho">
-    <h1>{{ instituicao }}</h1>
-    <h2>Recibo de Pagamento - {{ colaborador.nome }}</h2>
-    <p>Mês de Referência: {{ salario.mes_referencia }}</p>
-    <p>Gerado em: {{ data_processamento|date:"d/m/Y H:i" }}</p>
+
+  <!-- Cabeçalho com logo e nome da instituição -->
+  <div class="header">
+    <div>
+      <img src="{% static 'img/logo.png' %}" alt="Logo Instituição">
+    </div>
+    <div class="title">
+      <h1>{{ instituicao }}</h1>
+      <h2>Recibo de Pagamento</h2>
+    </div>
+    <div style="width: 60px;"></div>
   </div>
 
-  <div class="dados">
-    <p><strong>Nome:</strong> {{ colaborador.nome }}</p>
-    <p><strong>Documento:</strong> {{ colaborador.documento }}</p>
-    <p><strong>Cargo:</strong> {{ colaborador.cargo }}</p>
-    <p><strong>Departamento:</strong> {{ colaborador.get_departamento_display }}</p>
-    <hr>
+  <!-- Informações principais -->
+  <div class="employee-info">
     <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Valor (AKZ)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Salário Base</td>
-          <td>{{ colaborador.salario_base|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <td>Horas Extras</td>
-          <td>{{ salario.horas_extras|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <td>Bonificações</td>
-          <td>{{ salario.bonificacoes|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <td>Descontos</td>
-          <td>{{ salario.descontos|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <th>Salário Bruto</th>
-          <th>{{ salario.salario_bruto|floatformat:2 }}</th>
-        </tr>
-        <tr>
-          <td>INSS (8%)</td>
-          <td>{{ salario.inss|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <td>IRT (15%)</td>
-          <td>{{ salario.irt|floatformat:2 }}</td>
-        </tr>
-        <tr>
-          <th>Salário Líquido</th>
-          <th>{{ salario.salario_liquido|floatformat:2 }}</th>
-        </tr>
-      </tbody>
+      <tr>
+        <td class="label">Nome:</td>
+        <td>{{ colaborador.nome }}</td>
+        <td class="label">Documento:</td>
+        <td>{{ colaborador.documento }}</td>
+      </tr>
+      <tr>
+        <td class="label">Cargo:</td>
+        <td>{{ colaborador.cargo }}</td>
+        <td class="label">Departamento:</td>
+        <td>{{ colaborador.get_departamento_display }}</td>
+      </tr>
+      <tr>
+        <td class="label">Mês/Referência:</td>
+        <td>{{ salario.mes_referencia }}</td>
+        <td class="label">Processado por:</td>
+        <td>{{ salario.processado_por.get_full_name }}</td>
+      </tr>
+      <tr>
+        <td class="label">Data de Emissão:</td>
+        <td>{{ data_processamento|date:"d/m/Y H:i" }}</td>
+        <td class="label">Status:</td>
+        <td>Pago</td>
+      </tr>
     </table>
+  </div>
+
+  <!-- Tabela de detalhamento dos valores -->
+  <table class="salary-table">
+    <thead>
+      <tr class="section-header">
+        <th>Descrição do Item</th>
+        <th>Valor (AKZ)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Salário Base</td>
+        <td>{{ colaborador.salario_base|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <td>Horas Extras (h)</td>
+        <td>{{ salario.horas_extras|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <td>Bonificações</td>
+        <td>{{ salario.bonificacoes|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <td>Descontos</td>
+        <td>- {{ salario.descontos|floatformat:2 }}</td>
+      </tr>
+      <tr class="section-header">
+        <th>Salário Bruto</th>
+        <th>{{ salario.salario_bruto|floatformat:2 }}</th>
+      </tr>
+      <tr>
+        <td>INSS (8%)</td>
+        <td>- {{ salario.inss|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <td>IRT (15%)</td>
+        <td>- {{ salario.irt|floatformat:2 }}</td>
+      </tr>
+      <tr class="section-header">
+        <th>Salário Líquido</th>
+        <th>{{ salario.salario_liquido|floatformat:2 }}</th>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Campo de declaração e assinaturas -->
+  <div class="signatures">
+    <div class="block">
+      <div class="line"></div>
+      <p>Recebi Conforme Acima</p>
+      <p>(Assinatura do Colaborador)</p>
+    </div>
+    <div class="block">
+      <div class="line"></div>
+      <p>{{ salario.processado_por.get_full_name }}</p>
+      <p>(Processado por)</p>
+    </div>
+  </div>
+
+  <!-- Rodapé com informações da empresa -->
+  <div class="footer">
+    <p>Instituto Médio Técnico Privado Cecília Domingos &nbsp; | &nbsp; Endereço: Dangereux Rua dos postos Antiga, praça do Kibulo, Luanda - Angola &nbsp; | &nbsp; Tel: (+244) 956 240 508 &nbsp; | &nbsp; Email: contato@instituto-cecilia.com</p>
+    <p>Website: www.instituto-cecilia.com &nbsp; | &nbsp; NIF: 123.456.789</p>
   </div>
 </body>
 </html>

@@ -3,24 +3,310 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  {% if form.instance.pk %}Editar Salário{% else %}Novo Salário{% endif %}
+  {% if form.instance.pk %}Editar Salário - Sistema Escolar{% else %}Novo Salário - Sistema Escolar{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4" style="max-width: 600px;">
-    <h2 class="mb-4">{% if form.instance.pk %}Editar Salário{% else %}Novo Salário{% endif %}</h2>
-    <form method="post">
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-blue-600 mt-2">
+        {% if form.instance.pk %}Editar Salário{% else %}Processar Novo Salário{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as informações do salário
+        {% else %}
+          Preencha os campos para processar um novo salário
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
       {% csrf_token %}
-      {{ form|crispy }}
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações do Salário -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Informações do Salário
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- Campo: Colaborador -->
+            <div>
+              <label for="{{ form.colaborador.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Colaborador *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                {{ form.colaborador|as_crispy_field }}
+                {% if form.colaborador.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.colaborador.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Mês de Referência - SOLUÇÃO CORRIGIDA -->
+            <div>
+              <label for="id_mes_referencia" class="block text-sm font-medium text-gray-700 mb-1">Mês de Referência *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input type="month" 
+                       name="mes_referencia" 
+                       id="id_mes_referencia" 
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                       value="{{ form.mes_referencia.value|date:'Y-m' }}"
+                       required>
+                {% if form.mes_referencia.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.mes_referencia.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Horas Extras -->
+            <div>
+              <label for="{{ form.horas_extras.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Horas Extras</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.horas_extras|as_crispy_field }}
+                {% if form.horas_extras.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.horas_extras.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Descontos -->
+            <div>
+              <label for="{{ form.descontos.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Descontos (AKZ)</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.descontos|as_crispy_field }}
+                {% if form.descontos.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.descontos.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Bonificações -->
+            <div>
+              <label for="{{ form.bonificacoes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Bonificações (AKZ)</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                {{ form.bonificacoes|as_crispy_field }}
+                {% if form.bonificacoes.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.bonificacoes.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview do Cálculo em Tempo Real -->
+        <div id="preview-salario" class="bg-blue-50 border border-blue-200 p-4 rounded-lg hidden">
+          <h4 class="text-blue-800 font-medium flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Prévia de Cálculo
+          </h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Salário Bruto:</span>
+              <span id="prev-bruto" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">INSS (8%):</span>
+              <span id="prev-inss" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">IRT (15%):</span>
+              <span id="prev-irt" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-blue-100 mt-1">
+              <span class="text-gray-800 font-semibold">Salário Líquido:</span>
+              <span id="prev-liquido" class="text-blue-700 font-bold">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'administrativo:salario-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           {% if form.instance.pk %}Salvar Alterações{% else %}Processar Salário{% endif %}
         </button>
-        <a href="{% url 'administrativo:salario-list' %}" class="btn btn-secondary">Cancelar</a>
       </div>
     </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
   </div>
 </div>
+
+<!-- Script para calcular e exibir preview de salário em tempo real -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const inputHoras     = document.getElementById('id_horas_extras');
+    const inputDescontos = document.getElementById('id_descontos');
+    const inputBoni      = document.getElementById('id_bonificacoes');
+    const selectColab    = document.getElementById('id_colaborador');
+    const inputMesRef    = document.getElementById('id_mes_referencia');
+    const previewBox     = document.getElementById('preview-salario');
+    const prevBruto      = document.getElementById('prev-bruto');
+    const prevInss       = document.getElementById('prev-inss');
+    const prevIrt        = document.getElementById('prev-irt');
+    const prevLiquido    = document.getElementById('prev-liquido');
+
+    // Precisamos do salário base do colaborador no frontend. Uma forma simples:
+    // vamos mapear id do colaborador -> salário_base, injetando dessa forma:
+    const salariosBase = {
+      {% for c in colaboradores %}
+        "{{ c.id }}": {{ c.salario_base|floatformat:2 }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    };
+
+    function calcularPreview() {
+      const colabId = selectColab.value;
+      if (!colabId || !salariosBase[colabId]) {
+        previewBox.classList.add('hidden');
+        return;
+      }
+
+      const base = parseFloat(salariosBase[colabId]) || 0;
+      const horasExtra = parseFloat(inputHoras.value) || 0;
+      const descontos = parseFloat(inputDescontos.value) || 0;
+      const bonific = parseFloat(inputBoni.value) || 0;
+
+      // Cálculos (mesmas fórmulas do backend): valor hora = base / 160
+      const valorHora = base / 160;
+      const valorHE = horasExtra * valorHora * 1.5;
+      const bruto = base + valorHE + bonific - descontos;
+      const inss = 0  // bruto * 0.08;
+      const irt = 0 // bruto * 0.15;
+      const liquido = bruto // - inss - irt;
+
+      // Mostrar números arredondados a 2 casas
+      if (!isNaN(bruto)) {
+        prevBruto.textContent = bruto.toFixed(2) + ' AKZ';
+        prevInss.textContent  = inss.toFixed(2) + ' AKZ';
+        prevIrt.textContent   = irt.toFixed(2) + ' AKZ';
+        prevLiquido.textContent = liquido.toFixed(2) + ' AKZ';
+        previewBox.classList.remove('hidden');
+      } else {
+        previewBox.classList.add('hidden');
+      }
+    }
+
+    // Ao alterar colaborador ou algum input financeiro, recalcula
+    [selectColab, inputHoras, inputDescontos, inputBoni, inputMesRef].forEach(el => {
+      el.addEventListener('input', calcularPreview);
+    });
+  });
+</script>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+  
+  /* Estilo específico para o input type="month" */
+  input[type="month"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    cursor: pointer;
+  }
+  
+  /* Estilo para o ícone de calendário no input de mês */
+  input[type="month"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+  }
+  
+  input[type="month"]:focus::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
 {% endblock %}

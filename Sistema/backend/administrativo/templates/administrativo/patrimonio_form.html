@@ -3,24 +3,337 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  {% if form.instance.pk %}Editar Patrimônio{% else %}Novo Patrimônio{% endif %}
+  {% if form.instance.pk %}Editar Patrimônio - Sistema Escolar{% else %}Novo Patrimônio - Sistema Escolar{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4" style="max-width: 600px;">
-    <h2 class="mb-4">{% if form.instance.pk %}Editar Patrimônio{% else %}Novo Patrimônio{% endif %}</h2>
-    <form method="post" enctype="multipart/form-data">
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-yellow-600 mt-2">
+        {% if form.instance.pk %}Editar Patrimônio{% else %}Cadastrar Novo Patrimônio{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as informações do patrimônio
+        {% else %}
+          Preencha os campos para cadastrar um novo patrimônio
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
-      {{ form|crispy }}
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
-          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Patrimônio{% endif %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações do Patrimônio -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Informações do Patrimônio
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Campo: Descrição -->
+            <div>
+              <label for="{{ form.descricao.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Descrição *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                </div>
+                {{ form.descricao|as_crispy_field }}
+                {% if form.descricao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.descricao.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Categoria -->
+            <div>
+              <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Categoria *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+                {{ form.categoria|as_crispy_field }}
+                {% if form.categoria.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.categoria.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Valor de Aquisição -->
+            <div>
+              <label for="{{ form.valor_aquisicao.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Valor de Aquisição (AKZ) *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.valor_aquisicao|as_crispy_field }}
+                {% if form.valor_aquisicao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.valor_aquisicao.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Data de Aquisição -->
+            <div>
+              <label for="id_data_aquisicao" class="block text-sm font-medium text-gray-700 mb-1">Data de Aquisição *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input type="date" 
+                       name="data_aquisicao" 
+                       id="id_data_aquisicao" 
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                       value="{{ form.data_aquisicao.value|date:'Y-m-d' }}"
+                       required>
+                {% if form.data_aquisicao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.data_aquisicao.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Vida Útil -->
+            <div>
+              <label for="{{ form.vida_util_anos.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Vida Útil (anos) *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.vida_util_anos|as_crispy_field }}
+                {% if form.vida_util_anos.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.vida_util_anos.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Localização -->
+            <div>
+              <label for="{{ form.localizacao.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Localização</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                {{ form.localizacao|as_crispy_field }}
+                {% if form.localizacao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.localizacao.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Nota Fiscal -->
+            <div class="md:col-span-2">
+              <label for="{{ form.arquivo_documento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Arquivo Nota Fiscal</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                {{ form.arquivo_documento|as_crispy_field }}
+                {% if form.arquivo_documento.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.arquivo_documento.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview de Depreciação em Tempo Real -->
+        <div id="preview-depreciacao" class="bg-amber-50 border border-amber-200 p-4 rounded-lg hidden">
+          <h4 class="text-amber-800 font-medium flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Prévia de Depreciação
+          </h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Valor Original:</span>
+              <span id="prev-valor" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Tempo de Uso:</span>
+              <span id="prev-tempo" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Depreciação Mensal:</span>
+              <span id="prev-dep-mensal" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-amber-100 mt-1">
+              <span class="text-gray-800 font-semibold">Valor Contábil Atual:</span>
+              <span id="prev-valor-liquido" class="text-amber-700 font-bold">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'administrativo:patrimonio-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Cadastrar Patrimônio{% endif %}
         </button>
-        <a href="{% url 'administrativo:patrimonio-list' %}" class="btn btn-secondary">Cancelar</a>
       </div>
     </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
   </div>
 </div>
+
+<!-- Script para calcular e exibir o preview de depreciação -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const inputValor       = document.getElementById('id_valor_aquisicao');
+    const inputVidaUtil    = document.getElementById('id_vida_util_anos');
+    const inputDataAquis   = document.getElementById('id_data_aquisicao');
+    const previewContainer = document.getElementById('preview-depreciacao');
+    const prevValor        = document.getElementById('prev-valor');
+    const prevTempo        = document.getElementById('prev-tempo');
+    const prevDepMensal    = document.getElementById('prev-dep-mensal');
+    const prevValorLiquido = document.getElementById('prev-valor-liquido');
+
+    function calcularDepreciacao() {
+      const valor = parseFloat(inputValor.value) || 0;
+      const anos  = parseInt(inputVidaUtil.value) || 0;
+      const dataAquis = new Date(inputDataAquis.value);
+      const hoje = new Date();
+
+      if (valor > 0 && anos > 0 && !isNaN(dataAquis.getTime())) {
+        const mesesTotal = anos * 12;
+        let mesesPassados = (hoje.getFullYear() - dataAquis.getFullYear()) * 12 +
+                            (hoje.getMonth() - dataAquis.getMonth());
+        mesesPassados = Math.max(0, Math.min(mesesPassados, mesesTotal));
+        
+        const anosPassados = Math.floor(mesesPassados / 12);
+        const mesesRestantes = mesesPassados % 12;
+        const tempoUso = `${anosPassados} ano${anosPassados !== 1 ? 's' : ''} e ${mesesRestantes} mes${mesesRestantes !== 1 ? 'es' : ''}`;
+        
+        const depMensal = valor / mesesTotal;
+        const depAcumulada = depMensal * mesesPassados;
+        const valorLiquido = Math.max(valor - depAcumulada, 0);
+
+        prevValor.textContent = valor.toFixed(2) + ' AKZ';
+        prevTempo.textContent = tempoUso;
+        prevDepMensal.textContent = depMensal.toFixed(2) + ' AKZ';
+        prevValorLiquido.textContent = valorLiquido.toFixed(2) + ' AKZ';
+        previewContainer.classList.remove('hidden');
+      } else {
+        previewContainer.classList.add('hidden');
+      }
+    }
+
+    [inputValor, inputVidaUtil, inputDataAquis].forEach(el => {
+      el.addEventListener('input', calcularDepreciacao);
+    });
+    
+    // Calcular na carga inicial se valores existirem
+    calcularDepreciacao();
+  });
+</script>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+  }
+  
+  /* Estilo específico para o input type="date" */
+  input[type="date"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    cursor: pointer;
+  }
+  
+  /* Estilo para o ícone de calendário no input de data */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+  }
+  
+  input[type="date"]:focus::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
 {% endblock %}

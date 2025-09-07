@@ -1,0 +1,300 @@
+{# Sistema/backend/pedagogico/templates/pedagogico/nota_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Nota - Sistema Escolar{% else %}Nova Nota - Sistema Escolar{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-pink-600 mt-2">
+        {% if form.instance.pk %}Editar Nota{% else %}Lançar Nova Nota{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as notas e médias do aluno
+        {% else %}
+          Preencha os campos para lançar uma nova nota
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações do Aluno -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Informações do Aluno
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Campo: Aluno -->
+            <div>
+              <label for="{{ form.aluno.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Aluno *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                {{ form.aluno|as_crispy_field }}
+                {% if form.aluno.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.aluno.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Turma -->
+            <div>
+              <label for="{{ form.turma.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Turma *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                {{ form.turma|as_crispy_field }}
+                {% if form.turma.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.turma.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Disciplina -->
+            <div>
+              <label for="{{ form.disciplina.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Disciplina *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                {{ form.disciplina|as_crispy_field }}
+                {% if form.disciplina.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.disciplina.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grupo: Avaliações -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            Avaliações
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Notas -->
+            {% with form.nota1 as field %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }} *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                {{ field|as_crispy_field }}
+                {% if field.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ field.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endwith %}
+            
+            {% with form.nota2 as field %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }} *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                {{ field|as_crispy_field }}
+                {% if field.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ field.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endwith %}
+            
+            {% with form.nota3 as field %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }} *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                {{ field|as_crispy_field }}
+                {% if field.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ field.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endwith %}
+          </div>
+        </div>
+
+        <!-- Preview de Média -->
+        <div id="preview-media" class="bg-pink-50 border border-pink-200 p-4 rounded-lg hidden">
+          <h4 class="text-pink-800 font-medium flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Cálculo de Média
+          </h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Nota 1:</span>
+              <span id="prev-nota1" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Nota 2:</span>
+              <span id="prev-nota2" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Nota 3:</span>
+              <span id="prev-nota3" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-pink-100 mt-1">
+              <span class="text-gray-800 font-semibold">Média Final:</span>
+              <span id="prev-media" class="text-pink-700 font-bold">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'pedagogico:nota-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-pink-300 hover:from-pink-600 hover:to-pink-600 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Lançar Notas{% endif %}
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Script para calcular média em tempo real -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const nota1 = document.getElementById('id_nota1');
+    const nota2 = document.getElementById('id_nota2');
+    const nota3 = document.getElementById('id_nota3');
+    const previewBox = document.getElementById('preview-media');
+    const prevNota1 = document.getElementById('prev-nota1');
+    const prevNota2 = document.getElementById('prev-nota2');
+    const prevNota3 = document.getElementById('prev-nota3');
+    const prevMedia = document.getElementById('prev-media');
+
+    function calcularMedia() {
+      const n1 = parseFloat(nota1.value) || 0;
+      const n2 = parseFloat(nota2.value) || 0;
+      const n3 = parseFloat(nota3.value) || 0;
+      
+      if (n1 >= 0 || n2 >= 0 || n3 >= 0) {
+        const soma = n1 + n2 + n3;
+        const media = soma / 3;
+        
+        prevNota1.textContent = n1.toFixed(1);
+        prevNota2.textContent = n2.toFixed(1);
+        prevNota3.textContent = n3.toFixed(1);
+        prevMedia.textContent = media.toFixed(1);
+        previewBox.classList.remove('hidden');
+      } else {
+        previewBox.classList.add('hidden');
+      }
+    }
+
+    [nota1, nota2, nota3].forEach(el => {
+      el.addEventListener('input', calcularMedia);
+    });
+    
+    // Calcular na carga inicial se valores existirem
+    calcularMedia();
+  });
+</script>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #ec4899;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+  }
+</style>
+{% endblock %}

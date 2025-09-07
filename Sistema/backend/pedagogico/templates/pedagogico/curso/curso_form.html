@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+  {% if form.instance.pk %}Editar Curso - Sistema Escolar{% else %}Novo Curso - Sistema Escolar{% endif %}
+{% endblock %}
+{% block content %}
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-8">
+      <div class="mx-auto bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-yellow-600 mt-2">
+        {% if form.instance.pk %}Editar Curso{% else %}Novo Curso{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as informações do curso
+        {% else %}
+          Preencha os campos para criar um novo curso
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <i class="fas fa-exclamation-circle mr-2 mt-0.5 flex-shrink-0"></i>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Dados do Curso -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-info-circle text-gray-500 mr-2"></i>
+            Dados do Curso
+          </h3>
+          
+          <div class="grid grid-cols-1 gap-6">
+            <!-- Campo: Código -->
+            <div>
+              <label for="{{ form.codigo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Código *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-hashtag text-gray-400"></i>
+                </div>
+                {{ form.codigo|as_crispy_field }}
+              </div>
+            </div>
+            
+            <!-- Campo: Nome -->
+            <div>
+              <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-book text-gray-400"></i>
+                </div>
+                {{ form.nome|as_crispy_field }}
+              </div>
+            </div>
+            
+            <!-- Campo: Ativo -->
+            <div>
+              <label for="{{ form.ativo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <div class="flex items-center mt-2">
+                <div class="relative">
+                  {{ form.ativo|as_crispy_field }}
+                </div>
+                <span class="ml-2 text-sm text-gray-500">Curso ativo no sistema</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'pedagogico:curso-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-200 hover:from-yellow-600 hover:to-yellow-400 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Curso{% endif %}
+        </button>
+      </div>
+    </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-label {
+    display: none !important;
+  }
+  
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+  }
+</style>
+{% endblock %}

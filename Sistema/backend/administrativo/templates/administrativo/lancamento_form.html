@@ -3,24 +3,300 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  {% if form.instance.pk %}Editar Lançamento{% else %}Novo Lançamento{% endif %}
+  {% if form.instance.pk %}Editar Lançamento - Sistema Escolar{% else %}Novo Lançamento - Sistema Escolar{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-  {% include 'includes/sidebar.html' %}
-  <div class="flex-grow-1 p-4" style="max-width: 600px;">
-    <h2 class="mb-4">{% if form.instance.pk %}Editar Lançamento{% else %}Novo Lançamento{% endif %}</h2>
-    <form method="post">
+<div class="flex justify-center items-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all duration-300">
+    <!-- Cabeçalho com ícone institucional -->
+    <div class="text-center mb-6">
+      <div class="mx-auto bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">Sistema de Gestão Escolar</h1>
+      <h2 class="text-xl font-semibold text-green-600 mt-2">
+        {% if form.instance.pk %}Editar Lançamento{% else %}Registrar Novo Lançamento{% endif %}
+      </h2>
+      <p class="text-gray-500 mt-2">
+        {% if form.instance.pk %}
+          Atualize as informações do lançamento contábil
+        {% else %}
+          Preencha os campos para registrar um novo lançamento
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Mensagens de erro -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-6 flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <p class="font-medium">Erro no formulário</p>
+          {% for erro in form.non_field_errors %}
+            <p class="text-sm mt-1">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
       {% csrf_token %}
-      {{ form|crispy }}
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
-          {% if form.instance.pk %}Salvar Alterações{% else %}Criar Lançamento{% endif %}
+      
+      <div class="space-y-6">
+        <!-- Grupo: Informações do Lançamento -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Informações do Lançamento
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- Campo: Data do Lançamento -->
+            <div>
+              <label for="id_data_lancamento" class="block text-sm font-medium text-gray-700 mb-1">Data do Lançamento *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input type="date" 
+                       name="data_lancamento" 
+                       id="id_data_lancamento" 
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                       value="{{ form.data_lancamento.value|date:'Y-m-d' }}"
+                       required>
+                {% if form.data_lancamento.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.data_lancamento.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Conta Débito -->
+            <div>
+              <label for="{{ form.conta_debito.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Conta Débito *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                {{ form.conta_debito|as_crispy_field }}
+                {% if form.conta_debito.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.conta_debito.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Conta Crédito -->
+            <div>
+              <label for="{{ form.conta_credito.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Conta Crédito *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                {{ form.conta_credito|as_crispy_field }}
+                {% if form.conta_credito.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.conta_credito.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Valor -->
+            <div>
+              <label for="{{ form.valor.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Valor (AKZ) *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {{ form.valor|as_crispy_field }}
+                {% if form.valor.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.valor.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Campo: Descrição -->
+            <div>
+              <label for="{{ form.descricao.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Descrição *</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                </div>
+                {{ form.descricao|as_crispy_field }}
+                {% if form.descricao.errors %}
+                  <div class="mt-1 text-sm text-red-600">
+                    {{ form.descricao.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo Dinâmico (Preview) -->
+        <div id="preview-lancamento" class="bg-green-50 border border-green-200 p-4 rounded-lg hidden">
+          <h4 class="text-green-800 font-medium flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Resumo do Lançamento
+          </h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Data:</span>
+              <span id="prev-data" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Conta Débito:</span>
+              <span id="prev-debito" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Conta Crédito:</span>
+              <span id="prev-credito" class="font-medium">—</span>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-green-100 mt-1">
+              <span class="text-gray-800 font-semibold">Valor:</span>
+              <span id="prev-valor" class="text-green-700 font-bold">— AKZ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botões de ação -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+        <a href="{% url 'administrativo:lancamento-list' %}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-indigo-500 hover:from-green-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          {% if form.instance.pk %}Salvar Alterações{% else %}Registrar Lançamento{% endif %}
         </button>
-        <a href="{% url 'administrativo:lancamento-list' %}" class="btn btn-secondary">Cancelar</a>
       </div>
     </form>
+    
+    <!-- Rodapé institucional -->
+    <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+      <p class="text-xs text-gray-500">
+        Sistema exclusivo para utilizadores autorizados<br>
+        © {% now "Y" %} Instituto Médio Técnico Cecília Domingos - Todos os direitos reservados
+      </p>
+    </div>
   </div>
 </div>
+
+<!-- Script para atualizar o preview em tempo real -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const dataInput    = document.getElementById('id_data_lancamento');
+    const debito       = document.getElementById('id_conta_debito');
+    const credito      = document.getElementById('id_conta_credito');
+    const valorInput   = document.getElementById('id_valor');
+    const descricao    = document.getElementById('id_descricao');
+    const previewBox   = document.getElementById('preview-lancamento');
+    const prevData     = document.getElementById('prev-data');
+    const prevDebito   = document.getElementById('prev-debito');
+    const prevCredito  = document.getElementById('prev-credito');
+    const prevValor    = document.getElementById('prev-valor');
+
+    function formatarData(dataStr) {
+      if (!dataStr) return '—';
+      const data = new Date(dataStr);
+      return data.toLocaleDateString('pt-AO', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+    }
+
+    function atualizarPreview() {
+      const data = formatarData(dataInput.value);
+      const d = debito.options[debito.selectedIndex]?.text || '—';
+      const c = credito.options[credito.selectedIndex]?.text || '—';
+      const v = parseFloat(valorInput.value);
+      
+      if (data && d && c && !isNaN(v)) {
+        prevData.textContent   = data;
+        prevDebito.textContent  = d;
+        prevCredito.textContent = c;
+        prevValor.textContent   = v.toFixed(2) + ' AKZ';
+        previewBox.classList.remove('hidden');
+      } else {
+        previewBox.classList.add('hidden');
+      }
+    }
+
+    [dataInput, debito, credito, valorInput, descricao].forEach(el => {
+      el.addEventListener('input', atualizarPreview);
+      el.addEventListener('change', atualizarPreview);
+    });
+    
+    // Atualizar na carga inicial se valores existirem
+    atualizarPreview();
+  });
+</script>
+
+<style>
+  /* Esconde qualquer label gerado pelo crispy */
+  .form-label {
+    display: none !important;
+  }
+  
+  /* Estilos consistentes para inputs e botões */
+  input, select, textarea {
+    padding-left: 2.5rem !important;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  }
+  
+  /* Estilo específico para o input type="date" */
+  input[type="date"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    cursor: pointer;
+  }
+  
+  /* Estilo para o ícone de calendário no input de data */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+  }
+  
+  input[type="date"]:focus::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
 {% endblock %}

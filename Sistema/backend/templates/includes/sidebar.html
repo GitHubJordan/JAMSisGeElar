@@ -6,7 +6,7 @@
             <li>
                 <a href="{% url 'dashboard:admin-dashboard' %}"
                    class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-chart-line w-6 text-center mr-3 text-cyan-400"></i>
+                    <i class="fas fa-chart-line w-6 text-center mr-3 text-purple-400"></i>
                     <span>Dashboard Geral</span>
                 </a>
             </li>
@@ -44,6 +44,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'administrativo:plano-contas-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Planos de Contas
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'administrativo:lancamento-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Contabilidade
@@ -67,6 +73,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'pedagogico:curso-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Cursos
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'pedagogico:disciplina-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Disciplinas
@@ -82,6 +94,18 @@
                         <a href="{% url 'pedagogico:matricula-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pedagogico:prematricula-pendentes' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Pré Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pedagogico:prematricula-pendentes' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Confirmação de Matrículas
                         </a>
                     </li>
                     <li>
@@ -108,13 +132,19 @@
                             Calendário
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'pedagogico:relatorio-ano' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Relatório Ano Letivo
+                        </a>
+                    </li>
                 </ul>
             </li>
             
             <li>
                 <a data-bs-toggle="collapse" href="{% url 'dashboard:secretaria-dashboard' %}"
                    class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-invoice w-6 text-center mr-3 text-amber-400"></i>
+                    <i class="fas fa-file-invoice w-6 text-center mr-3 text-yellow-400"></i>
                     <span>Secretaria</span>
                     <i class="fas fa-chevron-down ml-auto text-xs text-gray-500 transition-transform"></i>
                 </a>
@@ -132,9 +162,27 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'secretaria:prematricula-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Pré Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'secretaria:rematricula-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Confirmação das Matrículas
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'secretaria:fatura-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Faturas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'secretaria:servico-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Serviços
                         </a>
                     </li>
                     <li>
@@ -167,6 +215,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'core:accesslog-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Accesslog
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'core:errorlog-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Errorlogs
@@ -178,6 +232,12 @@
                             Centro de Notificações
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'core:exercicio-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Gestão de Exercícios
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -186,7 +246,7 @@
             <li>
                 <a href="{% url 'dashboard:diretor-dashboard' %}"
                    class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-chart-pie w-6 text-center mr-3 text-cyan-400"></i>
+                    <i class="fas fa-chart-pie w-6 text-center mr-3 text-purple-400"></i>
                     <span>Dashboard Administrativo</span>
                 </a>
             </li>
@@ -224,6 +284,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'administrativo:plano-contas-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Planos de Contas
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'administrativo:lancamento-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Contabilidade
@@ -255,6 +321,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'pedagogico:curso-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Cursos
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'pedagogico:disciplina-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Disciplinas
@@ -270,6 +342,18 @@
                         <a href="{% url 'pedagogico:matricula-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pedagogico:prematricula-pendentes' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Pré-Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pedagogico:rematricula-pendentes' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Confirmação de Matrículas
                         </a>
                     </li>
                     <li>
@@ -296,13 +380,19 @@
                             Calendário
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'pedagogico:relatorio-ano' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Relatório Ano Letivo
+                        </a>
+                    </li>
                 </ul>
             </li>
             
             <li>
                 <a href="{% url 'dashboard:secretaria-dashboard' %}"
                     class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-invoice w-6 text-center mr-3 text-amber-400"></i>
+                    <i class="fas fa-file-invoice w-6 text-center mr-3 text-yellow-400"></i>
                     <span>Dashboard Secretaria</span>
                 </a>
             </li>
@@ -329,11 +419,29 @@
                             Alunos
                         </a>
                     </li>
-                    
+                    <li>
+                        <a href="{% url 'secretaria:prematricula-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Pré Matrículas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'secretaria:rematricula-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Corfimação das Matrículas
+                        </a>
+                    </li>
                     <li>
                         <a href="{% url 'secretaria:fatura-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
                             Faturas
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{% url 'secretaria:servico-list' %}"
+                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
+                            Serviços
                         </a>
                     </li>
                     
@@ -351,199 +459,186 @@
                     </li>
                 </ul>
             </li>
-
-        {% elif request.user.role.name == 'Pedagogico' %}
-            <!-- Subdiretor Pedagógico Menu -->
-            <li>
-                <a href="{% url 'dashboard:pedagogico-dashboard' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-book-open w-6 text-center mr-3 text-green-400"></i>
-                    <span>Dashboard Pedagógico</span>
-                </a>
-            </li>
             
             <li>
-                <a data-bs-toggle="collapse" href="{% url 'dashboard:pedagogico-dashboard' %}"
+                <a data-bs-toggle="collapse" href="#configuracaoSubmenuDiretor"
                    class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-chalkboard-teacher w-6 text-center mr-3 text-green-400"></i>
-                    <span>Área Pedagógica</span>
+                    <i class="fas fa-cog w-6 text-center mr-3 text-indigo-400"></i>
+                    <span>Configuração</span>
                     <i class="fas fa-chevron-down ml-auto text-xs text-gray-500 transition-transform"></i>
                 </a>
-                <ul class="collapse list-unstyled ps-12" id="pedagogicoSubmenuSubdiretor">
+
+                <ul class="collapse list-unstyled ps-12" id="configuracaoSubmenuDiretor">
                     <li>
-                        <a href="{% url 'pedagogico:turma-list' %}"
+                        <a href="{% url 'core:exercicio-list' %}"
                            class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Turmas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:disciplina-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Disciplinas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:turmadisciplina-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Turma-Disciplina
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:matricula-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Matrículas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:nota-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Notas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:boletim-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Boletins
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:anoletivo-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Anos Letivos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pedagogico:calendario-list' %}"
-                           class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-750 hover:text-white transition-colors">
-                            Calendário
+                            Gestão de Exercícios
                         </a>
                     </li>
                 </ul>
             </li>
 
+
         {% elif request.user.role.name == 'Pedagogico' %}
-            <!-- Pedagógico Menu -->
+            <!-- Subdiretor Pedagógico Menu -->
             <li>
-                <a href="{% url 'dashboard:pedagogico-dashboard' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-book-open w-6 text-center mr-3 text-green-400"></i>
-                    <span>Dashboard Pedagógico</span>
-                </a>
+            <a href="{% url 'dashboard:pedagogico-dashboard' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-book-open w-6 text-center mr-3 text-green-400"></i>
+                <span>Dashboard Pedagógico</span>
+            </a>
             </li>
             
             <li>
-                <a href="{% url 'pedagogico:turma-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-users-class w-6 text-center mr-3 text-green-400"></i>
-                    <span>Turmas</span>
-                </a>
+            <a href="{% url 'pedagogico:turma-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-users w-6 text-center mr-3 text-green-400"></i>
+                <span>Turmas</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:disciplina-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-book w-6 text-center mr-3 text-green-400"></i>
-                    <span>Disciplinas</span>
-                </a>
+            <a href="{% url 'pedagogico:curso-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-graduation-cap w-6 text-center mr-3 text-green-400"></i>
+                <span>Cursos</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:turmadisciplina-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-link w-6 text-center mr-3 text-green-400"></i>
-                    <span>Turma-Disciplina</span>
-                </a>
+            <a href="{% url 'pedagogico:disciplina-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-book w-6 text-center mr-3 text-green-400"></i>
+                <span>Disciplinas</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:matricula-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-user-plus w-6 text-center mr-3 text-green-400"></i>
-                    <span>Matrículas</span>
-                </a>
+            <a href="{% url 'pedagogico:turmadisciplina-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-layer-group w-6 text-center mr-3 text-green-400"></i>
+                <span>Turma-Disciplina</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:nota-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-edit w-6 text-center mr-3 text-green-400"></i>
-                    <span>Notas</span>
-                </a>
+            <a href="{% url 'pedagogico:matricula-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-user-edit w-6 text-center mr-3 text-green-400"></i>
+                <span>Matrículas</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:boletim-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-alt w-6 text-center mr-3 text-green-400"></i>
-                    <span>Boletins</span>
-                </a>
+            <a href="{% url 'pedagogico:prematricula-pendentes' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-file-signature w-6 text-center mr-3 text-green-400"></i>
+                <span>Pré Matrículas</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:anoletivo-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-calendar-alt w-6 text-center mr-3 text-green-400"></i>
-                    <span>Anos Letivos</span>
-                </a>
+            <a href="{% url 'pedagogico:rematricula-pendentes' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-user-check w-6 text-center mr-3 text-green-400"></i>
+                <span>Confirmação da Matrículas</span>
+            </a>
             </li>
-            
             <li>
-                <a href="{% url 'pedagogico:calendario-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-calendar w-6 text-center mr-3 text-green-400"></i>
-                    <span>Calendário</span>
-                </a>
+            <a href="{% url 'pedagogico:nota-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-clipboard-list w-6 text-center mr-3 text-green-400"></i>
+                <span>Notas</span>
+            </a>
+            </li>
+            <li>
+            <a href="{% url 'pedagogico:boletim-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-file-alt w-6 text-center mr-3 text-green-400"></i>
+                <span>Boletins</span>
+            </a>
+            </li>
+            <li>
+            <a href="{% url 'pedagogico:anoletivo-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-calendar-alt w-6 text-center mr-3 text-green-400"></i>
+                <span>Anos Letivos</span>
+            </a>
+            </li>
+            <li>
+            <a href="{% url 'pedagogico:calendario-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-calendar w-6 text-center mr-3 text-green-400"></i>
+                <span>Calendário</span>
+            </a>
+            </li>
+            <li>
+            <a href="{% url 'pedagogico:relatorio-ano' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-chart-bar w-6 text-center mr-3 text-green-400"></i>
+                <span>Relatório Ano Letivo</span>
+            </a>
             </li>
 
         {% elif request.user.role.name == 'Secretaria' %}
             <!-- Secretaria Menu -->
             <li>
-                <a href="{% url 'dashboard:secretaria-dashboard' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-invoice w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Dashboard Secretaria</span>
-                </a>
+            <a href="{% url 'dashboard:secretaria-dashboard' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-file-invoice w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Dashboard Secretaria</span>
+            </a>
             </li>
             
             <li>
-                <a href="{% url 'secretaria:encarregado-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-user-friends w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Encarregados</span>
-                </a>
+            <a href="{% url 'secretaria:encarregado-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-user-friends w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Encarregados</span>
+            </a>
             </li>
             
             <li>
-                <a href="{% url 'secretaria:aluno-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-user-graduate w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Alunos</span>
-                </a>
+            <a href="{% url 'secretaria:aluno-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-user-graduate w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Alunos</span>
+            </a>
             </li>
             
             <li>
-                <a href="{% url 'secretaria:fatura-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-invoice-dollar w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Faturas</span>
-                </a>
-            </li>
-            
-            <li>
-                <a href="{% url 'secretaria:contacorrente-list' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-wallet w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Contas Correntes</span>
-                </a>
+            <a href="{% url 'secretaria:prematricula-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-file-signature w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Pré Matrículas</span>
+            </a>
             </li>
 
             <li>
-                <a href="{% url 'pedagogico:relatorio-ano' %}"
-                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
-                    <i class="fas fa-file-alt w-6 text-center mr-3 text-amber-400"></i>
-                    <span>Relatório Ano Letivo</span>
-                </a>
+            <a href="{% url 'secretaria:rematricula-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-user-check w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Confirmação das Matrículas</span>
+            </a>
+            </li>
+
+            <li>
+            <a href="{% url 'secretaria:fatura-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-file-invoice-dollar w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Faturas</span>
+            </a>
+            </li>
+
+            <li>
+            <a href="{% url 'secretaria:servico-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-chalkboard w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Serviços</span>
+            </a>
+            </li>
+            
+            <li>
+            <a href="{% url 'secretaria:contacorrente-list' %}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 group transition-all">
+                <i class="fas fa-wallet w-6 text-center mr-3 text-yellow-400"></i>
+                <span>Contas Correntes</span>
+            </a>
             </li>
         {% endif %}
-    </ul>
-</nav>
+        </ul>
+    </nav>

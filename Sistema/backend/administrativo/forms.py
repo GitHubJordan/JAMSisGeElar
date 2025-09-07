@@ -1,6 +1,6 @@
 import re
 from django import forms
-from .models import Colaborador, Salario, BemPatrimonio, LancamentoContabil
+from .models import Colaborador, ContaContabil, Salario, BemPatrimonio, LancamentoContabil
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
@@ -99,6 +99,50 @@ class BemPatrimonioForm(forms.ModelForm):
             raise ValidationError("A vida útil deve ser de pelo menos 1 ano.")
         return data
 
+class ContaContabilForm(forms.ModelForm):
+    class Meta:
+        model = ContaContabil
+        fields = ['codigo', 'nome', 'tipo', 'posicao']
+        widgets = {
+            'codigo': forms.TextInput(attrs={
+                'placeholder': 'Ex.: 1.1.1',
+                'class': '...'
+            }),
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Nome da conta (Ex.: Caixa)',
+                'class': '...'
+            }),
+            'tipo': forms.Select(),
+            'posicao': forms.Select(),
+        }
+
+    def clean_codigo(self):
+        codigo = self.cleaned_data['codigo']
+        # validar regex de "1.1.1"
+        if not re.match(r'^\d+(\.\d+)*$', codigo):
+            raise ValidationError("O código deve seguir o formato numérico (Ex.: 1.1.1).")
+        # verificar se já existe conta com esse código
+        if ContaContabil.objects.filter(codigo=codigo).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("Já existe uma conta com este código.")
+        # verificar se o código é válido (ex.: não pode começar com zero)
+        if codigo.startswith('0'):
+            raise ValidationError("O código não pode começar com zero.")
+        # verificar se o código não é muito longo
+        if len(codigo) > 20:    
+            raise ValidationError("O código não pode ter mais de 20 caracteres.")
+        # verificar se o código não é muito curto
+        if len(codigo) < 1:
+            raise ValidationError("O código deve ter pelo menos 3 caracteres.")
+        # verificar se o código não contém caracteres inválidos
+        if not re.match(r'^[0-9.]+$', codigo):
+            raise ValidationError("O código só pode conter números e pontos.")
+        # verificar se o código não contém espaços
+        if ' ' in codigo:
+            raise ValidationError("O código não pode conter espaços.")
+        # verificar se o código não contém caracteres especiais
+        if re.search(r'[!@#$%^&*(),?":{}|<>]', codigo):
+            raise ValidationError("O código não pode conter caracteres especiais.")
+        return codigo
 
 class LancamentoContabilForm(forms.ModelForm):
     class Meta:
@@ -112,8 +156,8 @@ class LancamentoContabilForm(forms.ModelForm):
         ]
         widgets = {
             'data_lancamento': forms.DateInput(attrs={'type': 'date'}),
-            'conta_debito': forms.TextInput(attrs={'placeholder': 'Conta Débito'}),
-            'conta_credito': forms.TextInput(attrs={'placeholder': 'Conta Crédito'}),
+            'conta_debito': forms.Select(attrs={'class': '...'}),
+            'conta_credito': forms.Select(attrs={'class': '...'}),
             'valor': forms.NumberInput(attrs={'step': '0.01', 'min': 0}),
             'descricao': forms.Textarea(attrs={'rows': 2}),
         }
