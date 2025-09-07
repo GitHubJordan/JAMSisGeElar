@@ -10,9 +10,11 @@ django-crispy-forms==2.4
 django-widget-tweaks==1.5.0
 et_xmlfile==2.0.0
 fonttools==4.58.1
+gunicorn==23.0.0
 idna==3.10
 numpy==2.2.6
 openpyxl==3.1.5
+packaging==25.0
 pandas==2.3.0
 pillow==11.2.1
 psycopg2-binary==2.9.10
